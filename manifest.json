@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "Test Counter for Google Docs",
+  "version": "4.4",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "128": "icons/128.png"
+  },
+  "description": "Counts the number of words in a Google document.",
+  "permissions": [
+    "windows",
+    "offscreen",
+    "storage",
+    "alarms",
+    "activeTab",
+    "tabs",
+    "sidePanel",
+    "scripting"
+  ],
+  "host_permissions": [
+      "https://docs.google.com/*"
+    ],
+    
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open side panel"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      
+      "exclude_matches": [
+        "*://accounts.google.com/*",
+        "*://wordcount-chrome-extension.firebaseapp.com/*"
+      ],
+      "js": [
+        "jquery.min.js",
+        "chart.js",
+        "calendar.js",
+        "helpers.js",
+        "content.js"
+      ],
+      "css": ["content.css", "calendar.css"],
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/menu.png",
+        "assets/trash.png",
+        "assets/external.png",
+        "assets/pinned.png",
+        "assets/pencil.png",
+        "assets/minimize.png",
+        "assets/settings.png",
+        "assets/open.png",
+        "assets/close.png",
+        "assets/arrow.png",
+        "assets/google.png",
+        "calendar.js",
+        "chart.js",
+        "content.css",
+        "calendar.css",
+        "fonts/Ubuntu-Regular.ttf",
+        "fonts/Ubuntu-Medium.ttf"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

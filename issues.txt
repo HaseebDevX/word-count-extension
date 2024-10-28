@@ -1,0 +1,19 @@
+Step 1: Change the documents screen. We will be removing some features from this screen and moving them to the Outline screen.
+
+Features adding: 
+[FIXED] Hover color/outline for story. When you click the story it will bring you to the new Story Details section.
+Features removing: 
+[FIXED] Remove the Icon button (we will move these features into the Story Details screen). 
+Remove hover feature on progress bar
+[FIXED] Remove ability to click Add Goal button. This will now just be a text indicator that they do not have a goal. They will add the goal in the Story Details screen.
+
+Step 2: Add Story Details screen. We will have a few features (some that you can just copy the logic from Documents screen.)
+
+Features adding: 
+Link to document icon
+[FIXED] Document progress bar
+[FIXED] Add word count goal feature/progress bar
+[FIXED] Disconnect story icon with (Remove data or Keep data option)
+[FIXED] Add Story outline word count feature (only be visible for subscribers or free trial users)
+[FIXED] Add Free Trial indicator/banner
+[I THJINK FIXED] Add Sign up section for when user isn’t subscribed or free trial expires

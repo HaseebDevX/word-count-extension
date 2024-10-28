@@ -1,1 +1,1 @@
-# word-count-extension
+# word-count-chrome-extension
