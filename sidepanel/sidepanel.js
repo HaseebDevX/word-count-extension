@@ -683,6 +683,7 @@ let wcext_sidebar =
             </div>
             <div id="stats-content">
                <div class="word-count-container">
+               tahir
                   <select id="filter-startup" >
                      <option value="documents"> All Documents</option>
                   </select>
@@ -697,7 +698,7 @@ let wcext_sidebar =
                         <span id="word-count" class="count">0</span>
                      </div>
                      <div class="daily-goal">
-                        <p style="min-width: max-content;padding-right: 10px;" class="content-text">Daily Goal</p>
+                        <p style="min-width: max-content;padding-right: 10px;" class="content-text">Daily Goal</p>  
                         <div id="progress-wrapper" style="display:flex; width: 100%;">
                            <div id="daily-progress-bar-wrapper" style="display:none; background-color:  #C9DFE4; border-radius: 15px; height: 10px; margin-top: 2px;">
                               <div id="daily-progress-bar" style="background-color: #52A1BD; color: white; height: 10px; text-align: right; font-weight: normal; font-size: 20px; border-radius: 15px;"></div>
@@ -2139,11 +2140,13 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
   let selectHtml = "";
   let selectsAddHtml = "";
 
+  selectHtml += '<option value="documents"> All Documents</option>';
+  
   docs.forEach((item) => {
     selectHtml += `<option value="${item.title}" id="${item.id}">${item.title}</option>`;
     selectsAddHtml += selectHtml;
   });
-
+  
   wcSelectWrapper.innerHTML = selectHtml;
   wcSelectWrapperRaw.innerHTML = selectHtml;
   wcSelectWrapperEdit.innerHTML = selectsAddHtml;
@@ -3317,6 +3320,9 @@ function initializeSidebar() {
   function updateDocsUI(isMatched) {
     const wcAddDoc = shadowRoot.querySelector("#wc_addDoc");
     const wcLinkDoc = shadowRoot.querySelector("#wc_linkDoc");
+
+    
+
     if (isMatched) {
       console.log("TURNING ON LINK DOC");
       wcLinkDoc.style.display = "block";
