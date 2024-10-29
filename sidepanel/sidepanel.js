@@ -683,7 +683,6 @@ let wcext_sidebar =
             </div>
             <div id="stats-content">
                <div class="word-count-container">
-               tahir
                   <select id="filter-startup" >
                      <option value="documents"> All Documents</option>
                   </select>
