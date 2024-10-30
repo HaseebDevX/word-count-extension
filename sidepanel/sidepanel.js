@@ -4872,6 +4872,7 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
         saveButton.addEventListener("click", setGoal);
 
         inputElement.addEventListener("keypress", (event) => {
+          
           if (event.key === "Enter") {
             setGoal();
           }
@@ -4880,6 +4881,7 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
         inputElement.addEventListener("blur", setGoal);
 
         function setGoal() {
+          saveButton.style.display = 'none';
           const newGoal = parseInt(inputElement.value.replace(/,/g, ""));
           matchingDocument.goal = newGoal;
 
@@ -4929,10 +4931,14 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
 
           // Show Save button when clicked
           editButton.addEventListener("click", () => {
-            saveButton.style.display = "block"; // Show Save button
-            editButton.style.display = "none"; // Hide Edit button
-            inputElement.style.display = "block"; // Show input
-            progressContainer.replaceChild(inputElement, wordCountElement);
+            editGoal({
+              matchingDocument,
+              wordCountContainer,
+              wordCountElement,
+              progressBarElement,
+              editButton,
+              saveButton,
+            });
           });
 
           // Create a container to hold word count and edit button
@@ -5010,6 +5016,18 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
       editButton.style.border = "none";
       editButton.style.borderRadius = "5px";
       editButton.style.cursor = "pointer";
+
+
+      editButton.addEventListener("click", () => {
+        editGoal({
+          matchingDocument,
+          wordCountContainer,
+          wordCountElement,
+          progressBarElement,
+          editButton,
+          saveButton,
+        });
+      });
 
       // Append word count and edit button to a container
       const wordCountContainer = document.createElement("div");
@@ -5095,6 +5113,66 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
   return matchingDocument;
 }
 
+function editGoal({
+  matchingDocument,
+  wordCountContainer,
+  wordCountElement,
+  progressBarElement,
+  editButton,
+  saveButton,
+}) {
+  editButton.style.display = "none";
+
+  const inputElement = document.createElement("input");
+  inputElement.type = "number";
+  inputElement.min = "0";
+  inputElement.placeholder = "Enter new goal";
+  inputElement.style.fontSize = "14px";
+  inputElement.style.padding = "5px";
+  inputElement.style.marginTop = "10px";
+  inputElement.style.borderRadius = "5px";
+  inputElement.style.border = "1px solid #61a5c2";
+  inputElement.style.textAlign = "center";
+  inputElement.value = matchingDocument.goal.toLocaleString();
+
+  // Replace word count display with the input element
+  wordCountContainer.replaceChild(inputElement, wordCountElement);
+
+  // Set goal update logic
+  inputElement.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      updateGoal();
+    }
+  });
+
+  inputElement.addEventListener("blur", updateGoal);
+
+  function updateGoal() {
+    const updatedGoal = parseInt(inputElement.value.replace(/,/g, ""));
+    matchingDocument.goal = updatedGoal;
+    wordCountElement.textContent = `${matchingDocument.wordCount.toLocaleString()} / ${updatedGoal.toLocaleString()} words`;
+
+    chrome.storage.local.get(["documents"]).then((result) => {
+      const documents = result.documents || [];
+      const documentToUpdate = documents.find(
+        (doc) => doc.id === matchingDocument.id
+      );
+      if (documentToUpdate) {
+        documentToUpdate.goal = updatedGoal;
+        chrome.storage.local.set({ documents });
+      }
+    });
+
+    const percentage = (matchingDocument.wordCount / updatedGoal) * 100;
+    progressBarElement.firstChild.style.width =
+      percentage < 100 ? `${percentage}%` : "100%";
+
+    wordCountContainer.replaceChild(wordCountElement, inputElement);
+
+    editButton.style.display = "block";
+    saveButton.style.display = "none";
+  }
+}
 
 function addRefreshTime(panelElement, currentSiteTitle, updateCountChange= "deafult value") {
   if (currentUser == null) {
