@@ -4605,9 +4605,6 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
   panelElement.insertBefore(headerElement, panelElement.firstChild);
 }
 
-
-
-
 function addRefreshTime(panelElement, currentSiteTitle, updateCountChange= "deafult value") {
   if (currentUser == null) {
     return;
