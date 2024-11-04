@@ -1317,10 +1317,17 @@ function addShadowEventListeners() {
       // Add event listener to #filter-startup if it exists
       const filterStartupElement = shadowRoot.querySelector("#filter-startup");
       if (filterStartupElement) {
+
         filterStartupElement.addEventListener("change", function () {
+          console.log("new Change")
           const selectedOption = this.querySelector("option:checked");
           const id = selectedOption ? selectedOption.id : null;
           const value = this.value;
+
+          // Save the selected option value in Chrome storage
+          chrome.storage.local.set({ selectedFilterOption: value })
+            .catch((error) => console.error("Error saving filter option:", error));
+
           let updatedStats = {};
 
           if (value !== "documents") {
@@ -1356,6 +1363,7 @@ function addShadowEventListeners() {
       } else {
         console.error("#filter-startup element not found");
       }
+
     }
   });
 
@@ -1912,6 +1920,10 @@ document.addEventListener("click", function (event) {
 });
 
 function renderListing(docs, showWordCountOnly, showProgressBar) {
+// Retrieve the previously saved value and set it as selected on load
+chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
+  let savedValue = result.selectedFilterOption;
+    
   if (docs === undefined || docs === "") {
     docs = [];
   }
@@ -2061,6 +2073,7 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
   let docHtml = "";
   docs.forEach((item) => {
     totalWordsCount += item.wordCount;
+    
     const clipTitle = (str, maxLen) =>
       str.length <= maxLen
         ? str
@@ -2138,11 +2151,12 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
 
   let selectHtml = "";
   let selectsAddHtml = "";
+  const isSelected = savedValue === "documents" ? "selected" : "";
+  selectHtml += `<option value="documents" ${isSelected}> All Documents</option>`;
 
-  selectHtml += '<option value="documents"> All Documents</option>';
-  
   docs.forEach((item) => {
-    selectHtml += `<option value="${item.title}" id="${item.id}">${item.title}</option>`;
+    const isSelected = savedValue === item.title ? "selected" : "";
+    selectHtml += `<option value="${item.title}" id="${item.id}" ${isSelected} >${item.title}</option>`;
     selectsAddHtml += selectHtml;
   });
   
@@ -2158,7 +2172,6 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
     </div>
   `;
   }
-
   // Update total words count
   let formattedNumber = formatNumberWithCommas(totalWordsCount);
   shadowRoot.querySelector("#wc_totalWordsCount").innerHTML = formattedNumber;
@@ -2205,12 +2218,15 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
         globalPanelElement = shadowRoot.getElementById("content-story");
         globalSiteTitle = docTitle;
         globalPanelElement.style.display = "block";
-        console.log("This is #1");
         // Pass the title to the initStoryPage function
         initStoryPage(globalPanelElement, docTitle);
       }
     });
   }
+  wcSelectWrapper.value = savedValue;
+  wcSelectWrapper.dispatchEvent(new Event("change"));
+  
+}).catch((error) => console.error("Error fetching saved filter option:", error));
 }
 
 // async function renderRawDataAll(docs) {
