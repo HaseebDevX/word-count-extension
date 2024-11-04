@@ -1319,7 +1319,6 @@ function addShadowEventListeners() {
       if (filterStartupElement) {
 
         filterStartupElement.addEventListener("change", function () {
-          console.log("new Change")
           const selectedOption = this.querySelector("option:checked");
           const id = selectedOption ? selectedOption.id : null;
           const value = this.value;
