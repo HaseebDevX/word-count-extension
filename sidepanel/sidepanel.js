@@ -4503,7 +4503,7 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
   };
 
   const renderGoalContent = () => {
-    progressContainer.innerHTML = ""; // Clear container
+    progressContainer.innerHTML = "";
 
     if (!matchingDocument.goal || isNaN(matchingDocument.goal)) {
       showSetGoalUI();
@@ -4520,7 +4520,18 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
 
     setGoalButton.addEventListener("click", () => {
       const inputElement = createGoalInput();
-      progressContainer.replaceChild(inputElement, setGoalButton);
+
+        // Create the <p> element after calling createGoalInput
+        const pElement = document.createElement("p");
+        pElement.innerHTML = "Set word count goal";
+        pElement.style = "font-size: 12px; color: grey; margin-top: 5px; text-align: center;";
+  
+        // Wrap the input and <p> elements in a container
+        const inputContainer = document.createElement("div");
+        inputContainer.appendChild(inputElement);
+        inputContainer.appendChild(pElement);
+
+      progressContainer.replaceChild(inputContainer, setGoalButton);
 
       inputElement.addEventListener("keypress", (event) => {
         if (event.key === "Enter") {
@@ -4554,9 +4565,21 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
 
     editButton.addEventListener("click", () => {
       editButton.style.display = "none";
+      progressBarContainer.style.display = "none";
       const inputElement = createGoalInput();
-      inputElement.value = matchingDocument.goal.toLocaleString();
-      wordCountContainer.replaceChild(inputElement, wordCountElement);
+      console.log("matchingDocument.goal.toLocaleString()", matchingDocument.goal)
+      inputElement.value = matchingDocument.goal;
+      
+      // Create the <p> element after calling createGoalInput
+      const pElement = document.createElement("p");
+      pElement.innerHTML = "Set word count goal";
+      pElement.style = "font-size: 12px; color: grey; margin-top: 5px; text-align: center;";
+
+      const inputContainer = document.createElement("div");
+      inputContainer.appendChild(inputElement);
+      inputContainer.appendChild(pElement);
+
+      wordCountContainer.replaceChild(inputContainer, wordCountElement);
 
       inputElement.addEventListener("keypress", (event) => {
         if (event.key === "Enter") {
@@ -4567,13 +4590,15 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
       inputElement.addEventListener("blur", () => saveGoal(inputElement));
     });
   };
-
+  
   const createGoalInput = () => {
     const inputElement = document.createElement("input");
+    const pElement = document.createElement("p");
     inputElement.type = "number";
     inputElement.min = "0";
     inputElement.placeholder = "Enter goal";
-    inputElement.style = "font-size: 14px; padding: 10px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 10px;";
+    inputElement.style = "font-size: 14px; padding: 5px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 12px;";
+    pElement.innerHTML = "Set word count goal";
     return inputElement;
   };
 
@@ -4589,11 +4614,12 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
     const editIcon = document.createElement("span");
     editIcon.innerHTML = "&#9998;";
     editButton.appendChild(editIcon);
-    editButton.style = "font-size: 12px; margin-left: 10px; padding: 5px 10px; background-color: #61a5c2; color: white; border: none; border-radius: 5px; cursor: pointer;";
+    editButton.style = "font-size: 12px; margin-left: 10px; margin-top: -11px; padding: 5px 10px; background-color: #61a5c2; color: white; border: none; border-radius: 5px; cursor: pointer;";
     return editButton;
   };
 
   const saveGoal = (inputElement) => {
+    progressBarContainer.style.display = "block";
     const newGoal = parseInt(inputElement.value.replace(/,/g, ""));
     if (!isNaN(newGoal)) {
       matchingDocument.goal = newGoal;
