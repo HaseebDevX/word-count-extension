@@ -1453,8 +1453,14 @@ function addShadowEventListeners() {
           shadowRoot.querySelector("#wc_linkDoc").style.display = "block";
           shadowRoot.querySelector("#wc_addDoc").style.display = "none";
         }
+        chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
+          let savedValue = result.selectedFilterOption;
+          const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
+          wcSelectWrapper.value = savedValue ? savedValue : "documents";
+          wcSelectWrapper.dispatchEvent(new Event("change"));
+          chrome.runtime.sendMessage({ action: "getDocInfo", url: url });
 
-        chrome.runtime.sendMessage({ action: "getDocInfo", url: url });
+        });
         
       });
     }
@@ -2151,7 +2157,7 @@ chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
   let selectHtml = "";
   let selectsAddHtml = "";
   const isSelected = savedValue === "documents" ? "selected" : "";
-  selectHtml += `<option value="documents" ${isSelected}> All Documents</option>`;
+  selectHtml += `<option value="documents" ${isSelected == "" ? "selected" : isSelected}> All Documents</option>`;
 
   docs.forEach((item) => {
     const isSelected = savedValue === item.title ? "selected" : "";
