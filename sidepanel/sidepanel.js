@@ -1456,7 +1456,7 @@ function addShadowEventListeners() {
         chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
           let savedValue = result.selectedFilterOption;
           const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
-          wcSelectWrapper.value = savedValue ? savedValue : "documents";
+          wcSelectWrapper.value = savedValue ? savedValue :"documents";
           wcSelectWrapper.dispatchEvent(new Event("change"));
           chrome.runtime.sendMessage({ action: "getDocInfo", url: url });
 
@@ -1883,12 +1883,17 @@ addShadowEventListeners();
 
 function getGoalPercentage(words, goal) {
   let percent = Math.floor((parseInt(words) / parseInt(goal)) * 100);
-  if (percent > 100) {
-    percent = 100;
-  } else if (percent < 0) {
-    percent = 0;
+  console.log("goal == 0", goal == 0, goal)
+  if(goal != 0){
+    if (percent > 100) {
+      percent = 100;
+    } else if (percent < 0) {
+      percent = 0;
+    }
+    return percent;
+  } else {
+    return 0
   }
-  return percent;
 }
 
 function getAddUpdateGoalLink(goal, extraClass = "") {
@@ -2098,7 +2103,7 @@ chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
         <div class="wc_docWords">
         </div>
       `;
-    } else if (showProgressBar) {
+    } else if (showProgressBar && item.goal > 0) {
       if (item.goal === "") {
         // Display "No goal added" if no goal is set
         docHtml += `
