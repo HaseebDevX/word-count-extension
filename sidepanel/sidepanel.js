@@ -2124,7 +2124,7 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
          `;
       }
     } else {
-      if (item.goal == "" || item.goal == 0) {
+      if (item.goal == "" || item.goal <= 0) {
         docHtml += `
             <span class= "wc_wordsAndGoal" style="color: #000000; font-family: Ubuntu">
               ${formatNumberWithCommas(item.wordCount)} words
@@ -4509,13 +4509,13 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
 
         inputElement.addEventListener("blur", () => saveGoal(inputElement));
       });
-      if (matchingDocument.goal == "" || matchingDocument.goal == 0 || matchingDocument.goal == null) {
+      if (matchingDocument.goal == "" || matchingDocument.goal <= 0 || matchingDocument.goal == null) {
         editButton.style.display = "none";
       }
 
     const saveGoal = async (inputElement) => {
       const newGoal = parseInt(inputElement.value);
-      if (newGoal === 0 || isNaN(newGoal) || newGoal == "" || newGoal == null) {
+      if (newGoal === 0 || isNaN(newGoal) || newGoal == "" || newGoal == null || newGoal <= 0) {
         // Reset to "Set Goal" if the value is 0 or invalid
         matchingDocument.goal = 0;
         wordCountElement.style.display = "none";
