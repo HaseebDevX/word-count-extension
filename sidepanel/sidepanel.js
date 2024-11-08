@@ -1977,20 +1977,17 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
     }
     .wc_docWordsProgressWrap {
       position: relative;
-      cursor: pointer;
       
     }
     .wc_docWordsProgress {
       background-color: #C9DFE4;
       width: 65%;
       border-radius: 15px;
-      cursor: pointer;
 
     }
     .wc_docWordsProgress div {
       background-color: #52A1BD;
       color: white;
-      cursor: pointer;
 
     }
 .wc_docWordsProgressWrap span {
@@ -2002,7 +1999,7 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
       color: #000000;
       font-family: Ubuntu;
       line-height: normal;
-      cursor: pointer;
+
       padding-top:2.5px;
     }
 
@@ -4222,7 +4219,7 @@ async function addWordCount(
   buttonElement.style.marginRight = "auto";
   buttonElement.style.marginLeft = "auto";
 
-  if (totalWords && totalWords != 0 && !isNaN(totalWords)) {
+  if (totalWords && totalWords != 0 && !isNaN(totalWords) && totalWords > 0) {
     wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
     buttonElement.textContent = "CHANGE GOAL";
     showProgressBarStory = true;
@@ -4426,13 +4423,15 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
   // Await the asynchronous operation
   const result = await chrome.storage.local.get(["documents"]);
 
+  // Retrieve the selected document from the dropdown
+  const selectedDropdownElement = document.querySelector("#document-dropdown"); // Make sure this matches your dropdown selector
+  const selectedDocTitle = selectedDropdownElement ? selectedDropdownElement.value : currentSiteTitle;
 
   matchingDocument = result.documents.find((document) =>
-    currentSiteTitle.includes(document.title.trim())
+    selectedDocTitle.includes(document.title.trim())
   );
 
   if (matchingDocument) {
-
     const headerElement = document.createElement("div");
     headerElement.classList.add("wc_header");
     headerElement.style.height = "100px";
@@ -4442,8 +4441,7 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
     progressContainer.style.padding = "1px";
     progressContainer.style.height = "70px";
 
-    // Add the site title, progress bar, and word count to the new div
-    addSiteTitle(currentSiteTitle, headerElement);
+    addSiteTitle(selectedDocTitle, headerElement);
 
     headerElement.appendChild(progressContainer);
     let progressBarElement = addProgressBarToStoryPanel(
@@ -4451,112 +4449,92 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
       progressContainer
     );
 
-    const {
-      showProgressBarStory,
-      wordCountElement,
-      buttonElement,
-      wordCountContainer,
-    } = await addWordCount(
+    const { showProgressBarStory, wordCountElement, buttonElement, wordCountContainer } = await addWordCount(
       matchingDocument,
       progressContainer,
       progressBarElement
     );
 
-    // Once all three operations are done, add the div to the panelElement
     panelElement.insertBefore(headerElement, panelElement.firstChild);
 
     progressBarElement.style.display = showProgressBarStory ? "block" : "none";
     wordCountElement.style.display = matchingDocument.goal ? "block" : "none";
     buttonElement.style.display =
       matchingDocument.goal !== "" && matchingDocument.goal != 0 ? "none" : "block";
-  
-      // Only show the edit button if a goal is set
-      const editButton = document.createElement("button");
-      editButton.innerHTML = "&#9998;"; // Pencil icon using HTML entity
-      editButton.style.fontSize = "14px";
-      editButton.style.marginLeft = "8px";
-      editButton.style.padding = "4px";
-      editButton.style.backgroundColor = "#61a5c2";
-      editButton.style.color = "white";
-      editButton.style.border = "none";
-      editButton.style.borderRadius = "50%"; // Make the button round
-      editButton.style.cursor = "pointer";
 
-      // Center-align word count and edit button
-      wordCountContainer.style.display = "flex";
-      wordCountContainer.style.alignItems = "center";
-      wordCountContainer.style.justifyContent = "center";
-      wordCountContainer.appendChild(editButton);
+    // Add edit button
+    const editButton = document.createElement("button");
+    editButton.innerHTML = "&#9998;";
+    editButton.style.fontSize = "12px";
+    editButton.style.marginLeft = "8px";
+    editButton.style.padding = "4px";
+    editButton.style.backgroundColor = "#61a5c2";
+    editButton.style.color = "white";
+    editButton.style.border = "none";
+    editButton.style.borderRadius = "20%";
+    editButton.style.cursor = "pointer";
 
-      editButton.addEventListener("click", () => {
-        // Hide the edit button when editing
-        editButton.style.display = "none";
+    wordCountContainer.style.display = "flex";
+    wordCountContainer.style.alignItems = "center";
+    wordCountContainer.style.justifyContent = "center";
+    wordCountContainer.appendChild(editButton);
 
-        // Create input field to set new goal
-        const inputElement = document.createElement("input");
-        inputElement.type = "number";
-        inputElement.min = "0";
-        inputElement.placeholder = "Enter goal";
-        inputElement.value = matchingDocument.goal || ""; // Show current goal if set
-        inputElement.style.fontSize = "14px";
-        inputElement.style.padding = "10px";
-        inputElement.style.borderRadius = "20px";
-        inputElement.style.border = "1px solid #61a5c2";
-        inputElement.style.textAlign = "center";
+    editButton.addEventListener("click", () => {
+      editButton.style.display = "none";
 
-        // inputElement.style = "font-size: 14px; padding: 5px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 5px;";
+      const inputElement = document.createElement("input");
+      inputElement.type = "number";
+      inputElement.min = "0";
+      inputElement.placeholder = "Enter goal";
+      inputElement.value = matchingDocument.goal || "";
+      inputElement.style.fontSize = "14px";
+      inputElement.style.padding = "10px";
+      inputElement.style.borderRadius = "20px";
+      inputElement.style.border = "1px solid #61a5c2";
+      inputElement.style.textAlign = "center";
 
-        // Replace word count display with the input field
-        wordCountContainer.replaceChild(inputElement, wordCountElement);
+      wordCountContainer.replaceChild(inputElement, wordCountElement);
 
-        inputElement.addEventListener("keypress", (event) => {
-          if (event.key === "Enter") {
-            saveGoal(inputElement);
-          }
-        });
-
-        inputElement.addEventListener("blur", () => saveGoal(inputElement));
+      inputElement.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          saveGoal(inputElement);
+        }
       });
-      if (matchingDocument.goal == "" || matchingDocument.goal <= 0 || matchingDocument.goal == null) {
-        editButton.style.display = "none";
-      }
+
+      inputElement.addEventListener("blur", () => saveGoal(inputElement));
+    });
+
+    if (matchingDocument.goal == "" || matchingDocument.goal <= 0 || matchingDocument.goal == null) {
+      editButton.style.display = "none";
+    }
 
     const saveGoal = async (inputElement) => {
       const newGoal = parseInt(inputElement.value);
-      console.log("newGoal" , newGoal)
       if (newGoal === 0 || isNaN(newGoal) || newGoal == "" || newGoal == null || newGoal <= 0) {
-        // Reset to "Set Goal" if the value is 0 or invalid
         matchingDocument.goal = 0;
         wordCountElement.style.display = "none";
-        buttonElement.style.display = "block"; // Show "Set Goal" button
-        // progressBarElement.style.width = "0%"; // Reset progress bar
-        progressContainer.removeChild(wordCountContainer); // Remove word count and edit button if present
-        await updateGoalInStorage(0); // Update storage
-        
+        buttonElement.style.display = "block";
+        progressContainer.removeChild(wordCountContainer);
+        await updateGoalInStorage(matchingDocument.id, 0);
       } else {
         matchingDocument.goal = newGoal;
-
-        await updateGoalInStorage(newGoal);
-        
-        // Update progress bar and display new goal in word count
+        await updateGoalInStorage(matchingDocument.id, newGoal);
         wordCountElement.textContent = `${matchingDocument.wordCount.toLocaleString()} / ${newGoal.toLocaleString()} words`;
         progressBarElement.style.width = `80%`;
-        
-        // Replace input field with updated word count and show Edit button
         wordCountContainer.replaceChild(wordCountElement, inputElement);
-        editButton.style.display = "inline"; // Show the edit button again
-        wordCountElement.style.display = "block"; // Show word count
+        editButton.style.display = "inline";
+        wordCountElement.style.display = "block";
       }
-      
     };
-    const updateGoalInStorage = async (newGoal) => {
+
+    const updateGoalInStorage = async (docId, newGoal) => {
       const updatedDocuments = result.documents.map((doc) =>
-        doc.id === matchingDocument.id ? { ...doc, goal: newGoal } : doc
+        doc.id === docId ? { ...doc, goal: newGoal } : doc
       );
       await chrome.storage.local.set({ documents: updatedDocuments });
     };
   } else {
-    console.error("Document ", currentSiteTitle, " not found");
+    console.error("Document ", selectedDocTitle, " not found");
     addErrorOutlineData("This document is not added", panelElement);
   }
 
