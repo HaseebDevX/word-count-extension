@@ -1279,6 +1279,7 @@ function addShadowEventListeners() {
   // Tab stats
   shadowRoot.addEventListener("click", function (event) {
     if (event.target.id === "tab-stats") {
+      console.log("Tab Clicked ")
       initializeStats();
       shadowRoot.querySelector("#content-story").style.display = "none";
       shadowRoot.querySelector("#content-story").innerHTML = "none";
@@ -1357,6 +1358,13 @@ function addShadowEventListeners() {
       } else {
         console.error("#filter-startup element not found");
       }
+
+      chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
+        let savedValue = result.selectedFilterOption;
+        const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
+        wcSelectWrapper.value = savedValue && savedValue !== "" && savedValue !== null ? savedValue : "documents";
+        wcSelectWrapper.dispatchEvent(new Event("change"));
+      });
     }
   });
 
@@ -1451,7 +1459,6 @@ function addShadowEventListeners() {
         chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
           let savedValue = result.selectedFilterOption;
           const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
-          console.log("savedValue: ", savedValue)
           wcSelectWrapper.value = savedValue && savedValue !== "" && savedValue !== null ? savedValue : "documents";
           wcSelectWrapper.dispatchEvent(new Event("change"));
           
