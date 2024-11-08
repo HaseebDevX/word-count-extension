@@ -4271,15 +4271,16 @@ async function addWordCount(
       // Goal set function
       function updateGoalCount() {
         totalWords = parseInt(inputElement.value.replace(/,/g, ""));
+        if (totalWords <= 0) totalWords = 0;
         updateDocumentGoal(totalWords);
-        if (!isNaN(totalWords)) {
-          wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
-          wordCountElement.style.display = "block";
-        } else {
-          wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
-          wordCountElement.style.display = "block";
-          buttonElement.textContent = "SET GOAL";
-        }
+        // if (!isNaN(totalWords)) {
+        //   wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
+        //   wordCountElement.style.display = "block";
+        // } else {
+        //   wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
+        //   wordCountElement.style.display = "block";
+        //   buttonElement.textContent = "SET GOAL";
+        // }
 
         buttonElement.textContent = "CHANGE GOAL";
         wordCountContainer.replaceChild(buttonElement, inputElement);
@@ -4331,6 +4332,7 @@ async function addWordCount(
 
       function setGoalCount() {
         totalWords = parseInt(inputElement.value.replace(/,/g, ""));
+        if (totalWords <= 0) totalWords = 0;
         updateDocumentGoal(totalWords);
         // if (!isNaN(totalWords)) {
         //   wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
@@ -4349,10 +4351,10 @@ async function addWordCount(
           const completedPercentage = (wordCount / totalWords) * 100;
           progressBar.style.width =
             completedPercentage < 100 ? `${completedPercentage}%` : "100%";
-          existingProgressBar.style.display = !isNaN(totalWords)
+          existingProgressBar.style.display = !isNaN(totalWords) && totalWords > 0
             ? "block"
             : "none";
-          buttonElement.style.display = !isNaN(totalWords) ? "none" : "block";
+          buttonElement.style.display = !isNaN(totalWords) && totalWords > 0 ? "none" : "block";
         }
       }
     });
@@ -4496,7 +4498,13 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
         inputElement.min = "0";
         inputElement.placeholder = "Enter goal";
         inputElement.value = matchingDocument.goal || ""; // Show current goal if set
-        inputElement.style = "font-size: 14px; padding: 5px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 5px;";
+        inputElement.style.fontSize = "14px";
+        inputElement.style.padding = "10px";
+        inputElement.style.borderRadius = "20px";
+        inputElement.style.border = "1px solid #61a5c2";
+        inputElement.style.textAlign = "center";
+
+        // inputElement.style = "font-size: 14px; padding: 5px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 5px;";
 
         // Replace word count display with the input field
         wordCountContainer.replaceChild(inputElement, wordCountElement);
@@ -4515,6 +4523,7 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
 
     const saveGoal = async (inputElement) => {
       const newGoal = parseInt(inputElement.value);
+      console.log("newGoal" , newGoal)
       if (newGoal === 0 || isNaN(newGoal) || newGoal == "" || newGoal == null || newGoal <= 0) {
         // Reset to "Set Goal" if the value is 0 or invalid
         matchingDocument.goal = 0;
