@@ -1451,8 +1451,10 @@ function addShadowEventListeners() {
         chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
           let savedValue = result.selectedFilterOption;
           const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
-          wcSelectWrapper.value = savedValue ? savedValue :"documents";
+          console.log("savedValue: ", savedValue)
+          wcSelectWrapper.value = savedValue && savedValue !== "" && savedValue !== null ? savedValue : "documents";
           wcSelectWrapper.dispatchEvent(new Event("change"));
+          
           chrome.runtime.sendMessage({ action: "getDocInfo", url: url });
 
         });
@@ -2088,7 +2090,7 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
         <div class="wc_docWords">
         </div>
       `;
-    } else if (showProgressBar) {
+    } else if (showProgressBar && item.goal > 0) {
       if (item.goal === "") {
         // Display "No goal added" if no goal is set
         docHtml += `
@@ -2115,7 +2117,7 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
          `;
       }
     } else {
-      if (item.goal == "") {
+      if (item.goal == "" || item.goal == 0) {
         docHtml += `
             <span class= "wc_wordsAndGoal" style="color: #000000; font-family: Ubuntu">
               ${formatNumberWithCommas(item.wordCount)} words
@@ -2223,7 +2225,7 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
   }
   wcSelectWrapper.value = savedValue !== "" ? savedValue : "documents";
   wcSelectWrapper.dispatchEvent(new Event("change"));
-  
+   
 }).catch((error) => console.error("Error fetching saved filter option:", error));
 }
 
@@ -3214,6 +3216,7 @@ function initializeSidebar() {
         const tabStats = shadowRoot.querySelector("#tab-stats");
         if (tabStats) {
           tabStats.click();
+          
         }
       }
     }
@@ -4223,7 +4226,6 @@ async function addWordCount(
     );
 
     if (existingProgressBar) {
-      console.log("FOUND: ", existingProgressBar);
       let progressBar = existingProgressBar.firstChild;
       const completedPercentage = (wordCount / totalWords) * 100;
       progressBar.style.width =
@@ -4279,7 +4281,6 @@ async function addWordCount(
           ".wc_docWordsProgress"
         );
         if (existingProgressBar) {
-          console.log("FOUND: ", existingProgressBar);
           let progressBar = existingProgressBar.firstChild;
           const completedPercentage = (wordCount / totalWords) * 100;
           progressBar.style.width =
@@ -4324,20 +4325,19 @@ async function addWordCount(
       function setGoalCount() {
         totalWords = parseInt(inputElement.value.replace(/,/g, ""));
         updateDocumentGoal(totalWords);
-        if (!isNaN(totalWords)) {
-          wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
-          wordCountElement.style.display = "block";
-        } else {
-          wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
-          wordCountElement.style.display = "block";
-        }
-        buttonElement.textContent = "CHANGE GOAL";
+        // if (!isNaN(totalWords)) {
+        //   wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
+        //   wordCountElement.style.display = "block";
+        // } else {
+        //   wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
+        //   wordCountElement.style.display = "block";
+        // }
+        buttonElement.textContent = "SET GOAL";
         wordCountContainer.replaceChild(buttonElement, inputElement);
         let existingProgressBar = headerElement.querySelector(
           ".wc_docWordsProgress"
         );
         if (existingProgressBar) {
-          console.log("Progress bar is existing");
           let progressBar = existingProgressBar.firstChild;
           const completedPercentage = (wordCount / totalWords) * 100;
           progressBar.style.width =
@@ -4346,8 +4346,6 @@ async function addWordCount(
             ? "block"
             : "none";
           buttonElement.style.display = !isNaN(totalWords) ? "none" : "block";
-        } else {
-          console.error("Progress bar is NOT existing");
         }
       }
     });
@@ -4419,15 +4417,12 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
   // Await the asynchronous operation
   const result = await chrome.storage.local.get(["documents"]);
 
-  console.log("Documents: ", result.documents);
-  console.log("current Site Title", currentSiteTitle);
 
   matchingDocument = result.documents.find((document) =>
     currentSiteTitle.includes(document.title.trim())
   );
 
   if (matchingDocument) {
-    console.log("Current Document: ", matchingDocument);
 
     const headerElement = document.createElement("div");
     headerElement.classList.add("wc_header");
@@ -4465,7 +4460,7 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
     wordCountElement.style.display = matchingDocument.goal ? "block" : "none";
     buttonElement.style.display =
       matchingDocument.goal !== "" && matchingDocument.goal != 0 ? "none" : "block";
-    if (matchingDocument.goal && matchingDocument.goal > 0) {
+  
       // Only show the edit button if a goal is set
       const editButton = document.createElement("button");
       editButton.innerHTML = "&#9998;"; // Pencil icon using HTML entity
@@ -4507,37 +4502,42 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
 
         inputElement.addEventListener("blur", () => saveGoal(inputElement));
       });
-    }
+      if (matchingDocument.goal == "" || matchingDocument.goal == 0 || matchingDocument.goal == null) {
+        editButton.style.display = "none";
+      }
 
     const saveGoal = async (inputElement) => {
       const newGoal = parseInt(inputElement.value);
-      if (newGoal === 0 || isNaN(newGoal)) {
+      if (newGoal === 0 || isNaN(newGoal) || newGoal == "" || newGoal == null) {
         // Reset to "Set Goal" if the value is 0 or invalid
-        matchingDocument.goal = null;
+        matchingDocument.goal = 0;
         wordCountElement.style.display = "none";
         buttonElement.style.display = "block"; // Show "Set Goal" button
         // progressBarElement.style.width = "0%"; // Reset progress bar
         progressContainer.removeChild(wordCountContainer); // Remove word count and edit button if present
-        await updateGoalInStorage(null); // Update storage
+        await updateGoalInStorage(0); // Update storage
+        
       } else {
         matchingDocument.goal = newGoal;
 
-        // Update the goal in storage
-        const updatedDocuments = result.documents.map((doc) =>
-          doc.id === matchingDocument.id ? { ...doc, goal: newGoal } : doc
-        );
-        await chrome.storage.local.set({ documents: updatedDocuments });
-
+        await updateGoalInStorage(newGoal);
+        
         // Update progress bar and display new goal in word count
         wordCountElement.textContent = `${matchingDocument.wordCount.toLocaleString()} / ${newGoal.toLocaleString()} words`;
-        const percentage = (matchingDocument.wordCount / newGoal) * 100;
-        progressBarElement.style.width = `${Math.min(percentage, 100)}%`;
-
+        progressBarElement.style.width = `80%`;
+        
         // Replace input field with updated word count and show Edit button
         wordCountContainer.replaceChild(wordCountElement, inputElement);
         editButton.style.display = "inline"; // Show the edit button again
         wordCountElement.style.display = "block"; // Show word count
       }
+      
+    };
+    const updateGoalInStorage = async (newGoal) => {
+      const updatedDocuments = result.documents.map((doc) =>
+        doc.id === matchingDocument.id ? { ...doc, goal: newGoal } : doc
+      );
+      await chrome.storage.local.set({ documents: updatedDocuments });
     };
   } else {
     console.error("Document ", currentSiteTitle, " not found");
