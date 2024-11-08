@@ -82,6 +82,7 @@ function applyStyleToOuterSpinner() {
 
 function applyFreeTrialStyles(freeTrialElement, mode) {
   if (!freeTrialElement) return;
+
   const isStatsMode = mode === "stats";
   freeTrialElement.style.marginTop = isStatsMode ? "60px" : "";
   //freeTrialElement.style.backgroundColor = isStatsMode ? 'white' : '';
@@ -218,8 +219,6 @@ chrome.runtime.sendMessage({ type: "current-user" }).then((user) => {
   checkCurrentUser();
   // chrome.storage.local.set({user:currentUser});
 });
-
-
 
 async function checkCurrentUser() {
   const statsContent = shadowRoot.querySelector("#stats-content");
@@ -579,7 +578,7 @@ let wcext_sidebar =
                }
             </style>
             <div class="free-trial-container">
-               <div style="padding-bottom: 30px;line-height: normal; font-size: 18px;" class="free-trial">Sign Up to unlock more features like...</div>
+               <div style="padding-bottom: 5px; margin-bottom: 20px;line-height: normal; font-size: 14px;" class="free-trial">Sign Up to unlock more features like...</div>
                <ul id="features-list">
                   <li>Daily word count tracker</li>
                   <li>Weekly word count tracker</li>
@@ -630,7 +629,7 @@ let wcext_sidebar =
                }
             </style>
             <div class="free-trial-container">
-              <div style="padding-bottom: 30px;line-height: normal; font-size: 18px;" class="free-trial">Unlock more features like...</div>
+              <div style="padding-bottom: 5px; margin-bottom: 20px;line-height: normal; font-size: 14px;" class="free-trial">Unlock more features like...</div>
                 <ul id="features-list">
                   <li>Section/Chapter word count breakdown</li>
                   <li>Daily word count tracker</li>
@@ -697,7 +696,7 @@ let wcext_sidebar =
                         <span id="word-count" class="count">0</span>
                      </div>
                      <div class="daily-goal">
-                        <p style="min-width: max-content;padding-right: 10px;" class="content-text">Daily Goal</p>  
+                        <p style="min-width: max-content;padding-right: 10px;" class="content-text">Daily Goal</p>
                         <div id="progress-wrapper" style="display:flex; width: 100%;">
                            <div id="daily-progress-bar-wrapper" style="display:none; background-color:  #C9DFE4; border-radius: 15px; height: 10px; margin-top: 2px;">
                               <div id="daily-progress-bar" style="background-color: #52A1BD; color: white; height: 10px; text-align: right; font-weight: normal; font-size: 20px; border-radius: 15px;"></div>
@@ -1317,16 +1316,12 @@ function addShadowEventListeners() {
       // Add event listener to #filter-startup if it exists
       const filterStartupElement = shadowRoot.querySelector("#filter-startup");
       if (filterStartupElement) {
-
         filterStartupElement.addEventListener("change", function () {
           const selectedOption = this.querySelector("option:checked");
           const id = selectedOption ? selectedOption.id : null;
           const value = this.value;
-
-          // Save the selected option value in Chrome storage
           chrome.storage.local.set({ selectedFilterOption: value })
             .catch((error) => console.error("Error saving filter option:", error));
-
           let updatedStats = {};
 
           if (value !== "documents") {
@@ -1362,7 +1357,6 @@ function addShadowEventListeners() {
       } else {
         console.error("#filter-startup element not found");
       }
-
     }
   });
 
@@ -1453,6 +1447,7 @@ function addShadowEventListeners() {
           shadowRoot.querySelector("#wc_linkDoc").style.display = "block";
           shadowRoot.querySelector("#wc_addDoc").style.display = "none";
         }
+
         chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
           let savedValue = result.selectedFilterOption;
           const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
@@ -1863,9 +1858,7 @@ function addShadowEventListeners() {
     }
   });
 
-  
   shadowRoot.addEventListener("click", function (event) {
-     console.log("Event ID here----", event.target.id)
     if (
       event.target.id === "wc_subscribe-button" ||
       event.target.matches(".trial-subscribe-btn")
@@ -1883,17 +1876,12 @@ addShadowEventListeners();
 
 function getGoalPercentage(words, goal) {
   let percent = Math.floor((parseInt(words) / parseInt(goal)) * 100);
-  console.log("goal == 0", goal == 0, goal)
-  if(goal != 0){
-    if (percent > 100) {
-      percent = 100;
-    } else if (percent < 0) {
-      percent = 0;
-    }
-    return percent;
-  } else {
-    return 0
+  if (percent > 100) {
+    percent = 100;
+  } else if (percent < 0) {
+    percent = 0;
   }
+  return percent;
 }
 
 function getAddUpdateGoalLink(goal, extraClass = "") {
@@ -1930,10 +1918,8 @@ document.addEventListener("click", function (event) {
 });
 
 function renderListing(docs, showWordCountOnly, showProgressBar) {
-// Retrieve the previously saved value and set it as selected on load
-chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
-  let savedValue = result.selectedFilterOption;
-    
+  chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
+    let savedValue = result.selectedFilterOption;
   if (docs === undefined || docs === "") {
     docs = [];
   }
@@ -2083,7 +2069,6 @@ chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
   let docHtml = "";
   docs.forEach((item) => {
     totalWordsCount += item.wordCount;
-    
     const clipTitle = (str, maxLen) =>
       str.length <= maxLen
         ? str
@@ -2103,7 +2088,7 @@ chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
         <div class="wc_docWords">
         </div>
       `;
-    } else if (showProgressBar && item.goal > 0) {
+    } else if (showProgressBar) {
       if (item.goal === "") {
         // Display "No goal added" if no goal is set
         docHtml += `
@@ -2161,6 +2146,7 @@ chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
 
   let selectHtml = "";
   let selectsAddHtml = "";
+
   const isSelected = savedValue === "documents" ? "selected" : "";
   selectHtml += `<option value="documents" ${isSelected == "" ? "selected" : isSelected}> All Documents</option>`;
 
@@ -2169,7 +2155,7 @@ chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
     selectHtml += `<option value="${item.title}" id="${item.id}" ${isSelected} >${item.title}</option>`;
     selectsAddHtml += selectHtml;
   });
-  
+
   wcSelectWrapper.innerHTML = selectHtml;
   wcSelectWrapperRaw.innerHTML = selectHtml;
   wcSelectWrapperEdit.innerHTML = selectsAddHtml;
@@ -2182,6 +2168,7 @@ chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
     </div>
   `;
   }
+
   // Update total words count
   let formattedNumber = formatNumberWithCommas(totalWordsCount);
   shadowRoot.querySelector("#wc_totalWordsCount").innerHTML = formattedNumber;
@@ -2228,12 +2215,13 @@ chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
         globalPanelElement = shadowRoot.getElementById("content-story");
         globalSiteTitle = docTitle;
         globalPanelElement.style.display = "block";
+        console.log("This is #1");
         // Pass the title to the initStoryPage function
         initStoryPage(globalPanelElement, docTitle);
       }
     });
   }
-  wcSelectWrapper.value = savedValue;
+  wcSelectWrapper.value = savedValue !== "" ? savedValue : "documents";
   wcSelectWrapper.dispatchEvent(new Event("change"));
   
 }).catch((error) => console.error("Error fetching saved filter option:", error));
@@ -2431,7 +2419,6 @@ $("#daily-goal-input").on("keydown", function (event) {
   }
 });
 
-
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
   console.log("changes", changes);
   if (changes.documents) {
@@ -2445,18 +2432,11 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
         );
       });
 
-     const ele=  $(shadowRoot).find("#word-line").hide();
-     ele.forEach(element => {
-      console.log("element", element)
-      element.style.display ='none'
-      });
-
     if (isStoryPanelOpen && storyDetailsPageOpened) {
       const tabInfo = await getActiveTabInfo();
       const currentSiteTitle = tabInfo.title.replace(" - Google Docs", "");
       globalPanelElement = shadowRoot.getElementById("content-story");
       updateOutlineData([globalPanelElement, currentSiteTitle]);
-
     } else {
       updateOutlineData([]);
     }
@@ -3345,9 +3325,6 @@ function initializeSidebar() {
   function updateDocsUI(isMatched) {
     const wcAddDoc = shadowRoot.querySelector("#wc_addDoc");
     const wcLinkDoc = shadowRoot.querySelector("#wc_linkDoc");
-
-    
-
     if (isMatched) {
       console.log("TURNING ON LINK DOC");
       wcLinkDoc.style.display = "block";
@@ -4290,12 +4267,9 @@ async function addWordCount(
           wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
           wordCountElement.style.display = "block";
         } else {
-
           wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
-          if(currentUser){
-            wordCountElement.style.display = "block";
-            buttonElement.textContent = "SET GOAL";
-          }
+          wordCountElement.style.display = "block";
+          buttonElement.textContent = "SET GOAL";
         }
 
         buttonElement.textContent = "CHANGE GOAL";
@@ -4318,11 +4292,8 @@ async function addWordCount(
       }
     });
   } else {
-    
-// Doc not linked show first time  SET GOAL button this 
-      wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
-      buttonElement.textContent = "SET GOAL";
-  
+    wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
+    buttonElement.textContent = "SET GOAL";
 
     buttonElement.addEventListener("click", () => {
       const inputElement = document.createElement("input");
@@ -4353,16 +4324,15 @@ async function addWordCount(
       function setGoalCount() {
         totalWords = parseInt(inputElement.value.replace(/,/g, ""));
         updateDocumentGoal(totalWords);
-          if (!isNaN(totalWords)) {
-            wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
-            wordCountElement.style.display = "block";
-          } else {
-            wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
-            wordCountElement.style.display = "block";
-          }
-          buttonElement.textContent = "CHANGE GOAL";
-          wordCountContainer.replaceChild(buttonElement, inputElement);
-      
+        if (!isNaN(totalWords)) {
+          wordCountElement.textContent = `${wordCount.toLocaleString()} / ${totalWords.toLocaleString()} words`;
+          wordCountElement.style.display = "block";
+        } else {
+          wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
+          wordCountElement.style.display = "block";
+        }
+        buttonElement.textContent = "CHANGE GOAL";
+        wordCountContainer.replaceChild(buttonElement, inputElement);
         let existingProgressBar = headerElement.querySelector(
           ".wc_docWordsProgress"
         );
@@ -4384,10 +4354,8 @@ async function addWordCount(
   }
 
   wordCountContainer.appendChild(wordCountElement);
-if(currentUser  ){
   wordCountContainer.appendChild(buttonElement);
   headerElement.appendChild(wordCountContainer);
-}
 
   return {
     showProgressBarStory,
@@ -4413,15 +4381,14 @@ function checkStoryUser() {
       "Account : " + currentUser.email;
   }
   if (!currentUser) {
-    console.log("there is no current story user",!currentUser);
+    console.log("there is no current user");
     if (documentTabElement.classList.contains("active")) {
+      addOutlineSeparator(globalPanelElement);
 
       applyFreeTrialStyles(freeTrial, "documents");
-      addOutlineSeparator(globalPanelElement);
+
       addRemoveButton(globalPanelElement, globalSiteTitle);
-       
-        freeTrial.style.display = "block";
-      
+      freeTrial.style.display = "block";
       sleep(1000);
       if (!isLoginInProgress) loadingOverlay.style.display = "none";
     }
@@ -4444,6 +4411,144 @@ function checkStoryUser() {
 
   return true;
 }
+
+// makeStoryHeader this function through the error
+async function makeStoryHeader(currentSiteTitle, panelElement) {
+  let matchingDocument = "";
+
+  // Await the asynchronous operation
+  const result = await chrome.storage.local.get(["documents"]);
+
+  console.log("Documents: ", result.documents);
+  console.log("current Site Title", currentSiteTitle);
+
+  matchingDocument = result.documents.find((document) =>
+    currentSiteTitle.includes(document.title.trim())
+  );
+
+  if (matchingDocument) {
+    console.log("Current Document: ", matchingDocument);
+
+    const headerElement = document.createElement("div");
+    headerElement.classList.add("wc_header");
+    headerElement.style.height = "100px";
+
+    const progressContainer = document.createElement("div");
+    progressContainer.classList.add("wc_progressContainer");
+    progressContainer.style.padding = "1px";
+    progressContainer.style.height = "70px";
+
+    // Add the site title, progress bar, and word count to the new div
+    addSiteTitle(currentSiteTitle, headerElement);
+
+    headerElement.appendChild(progressContainer);
+    let progressBarElement = addProgressBarToStoryPanel(
+      (matchingDocument.wordCount / matchingDocument.goal) * 100,
+      progressContainer
+    );
+
+    const {
+      showProgressBarStory,
+      wordCountElement,
+      buttonElement,
+      wordCountContainer,
+    } = await addWordCount(
+      matchingDocument,
+      progressContainer,
+      progressBarElement
+    );
+
+    // Once all three operations are done, add the div to the panelElement
+    panelElement.insertBefore(headerElement, panelElement.firstChild);
+
+    progressBarElement.style.display = showProgressBarStory ? "block" : "none";
+    wordCountElement.style.display = matchingDocument.goal ? "block" : "none";
+    buttonElement.style.display =
+      matchingDocument.goal !== "" && matchingDocument.goal != 0 ? "none" : "block";
+    if (matchingDocument.goal && matchingDocument.goal > 0) {
+      // Only show the edit button if a goal is set
+      const editButton = document.createElement("button");
+      editButton.innerHTML = "&#9998;"; // Pencil icon using HTML entity
+      editButton.style.fontSize = "14px";
+      editButton.style.marginLeft = "8px";
+      editButton.style.padding = "4px";
+      editButton.style.backgroundColor = "#61a5c2";
+      editButton.style.color = "white";
+      editButton.style.border = "none";
+      editButton.style.borderRadius = "50%"; // Make the button round
+      editButton.style.cursor = "pointer";
+
+      // Center-align word count and edit button
+      wordCountContainer.style.display = "flex";
+      wordCountContainer.style.alignItems = "center";
+      wordCountContainer.style.justifyContent = "center";
+      wordCountContainer.appendChild(editButton);
+
+      editButton.addEventListener("click", () => {
+        // Hide the edit button when editing
+        editButton.style.display = "none";
+
+        // Create input field to set new goal
+        const inputElement = document.createElement("input");
+        inputElement.type = "number";
+        inputElement.min = "0";
+        inputElement.placeholder = "Enter goal";
+        inputElement.value = matchingDocument.goal || ""; // Show current goal if set
+        inputElement.style = "font-size: 14px; padding: 5px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 5px;";
+
+        // Replace word count display with the input field
+        wordCountContainer.replaceChild(inputElement, wordCountElement);
+
+        inputElement.addEventListener("keypress", (event) => {
+          if (event.key === "Enter") {
+            saveGoal(inputElement);
+          }
+        });
+
+        inputElement.addEventListener("blur", () => saveGoal(inputElement));
+      });
+    }
+
+    const saveGoal = async (inputElement) => {
+      const newGoal = parseInt(inputElement.value);
+      if (newGoal === 0 || isNaN(newGoal)) {
+        // Reset to "Set Goal" if the value is 0 or invalid
+        matchingDocument.goal = null;
+        wordCountElement.style.display = "none";
+        buttonElement.style.display = "block"; // Show "Set Goal" button
+        // progressBarElement.style.width = "0%"; // Reset progress bar
+        progressContainer.removeChild(wordCountContainer); // Remove word count and edit button if present
+        await updateGoalInStorage(null); // Update storage
+      } else {
+        matchingDocument.goal = newGoal;
+
+        // Update the goal in storage
+        const updatedDocuments = result.documents.map((doc) =>
+          doc.id === matchingDocument.id ? { ...doc, goal: newGoal } : doc
+        );
+        await chrome.storage.local.set({ documents: updatedDocuments });
+
+        // Update progress bar and display new goal in word count
+        wordCountElement.textContent = `${matchingDocument.wordCount.toLocaleString()} / ${newGoal.toLocaleString()} words`;
+        const percentage = (matchingDocument.wordCount / newGoal) * 100;
+        progressBarElement.style.width = `${Math.min(percentage, 100)}%`;
+
+        // Replace input field with updated word count and show Edit button
+        wordCountContainer.replaceChild(wordCountElement, inputElement);
+        editButton.style.display = "inline"; // Show the edit button again
+        wordCountElement.style.display = "block"; // Show word count
+      }
+    };
+  } else {
+    console.error("Document ", currentSiteTitle, " not found");
+    addErrorOutlineData("This document is not added", panelElement);
+  }
+
+  return matchingDocument;
+}
+
+
+
 
 async function isTrialExpire() {
   const userData = await chrome.storage.local.get(["user"]);
@@ -4473,200 +4578,128 @@ async function isTrialExpire() {
   }
 }
 
-async function makeStoryHeader(currentSiteTitle, panelElement) {
-  let matchingDocument = "";
-  const result = await chrome.storage.local.get(["documents"]);
-  console.log("Documents: ", result.documents);
-  console.log("current Site Title", currentSiteTitle);
+// Function to add outline data to the panel
+async function makeStoryPage(outline, panelElement, currentSiteTitle) {
+  //todo haseeb here for outlines
+ 
 
-  matchingDocument = result.documents.find((document) =>
-    currentSiteTitle.includes(document.title.trim())
-  );
+  console.log("Outlines check---------------",outline)
+  async function buildStructure() {
+    const outlineContainer = panelElement;
+    outlineContainer.style.marginBottom = "40px";
 
-  if (!matchingDocument) {
-    console.error("Document ", currentSiteTitle, " not found");
-    addErrorOutlineData("This document is not added", panelElement);
-    return;
+    displayOutline = checkStoryUser();
+
+    console.log("displayOutline: ", displayOutline);
+    addOutlineSeparator(panelElement);
+
+    const isTrialPlanExpired = await isTrialExpire();
+    if (isTrialPlanExpired && !isLoginInProgress) {
+      showTrialExpired();
+      addRemoveButton(panelElement, currentSiteTitle);
+      return;
+    }
+
+    if (displayOutline) {
+      outline.forEach((item) => {
+        const element = document.createElement("div");
+        element.style.margin = "14px 0"; // Adjusted top margin for closer spacing
+        element.style.fontSize = "13px";
+        element.style.textAlign = "left"; // Align the outline text to the left
+        element.style.fontStyle = "italic"; // Italics for the outline text
+
+        let displayText = "";
+        let clippedAmount = 0;
+        switch (item.level) {
+          case 0:
+            element.style.marginLeft = "0px";
+            clippedAmount = 37;
+            break;
+          case 1:
+            element.style.marginLeft = "15px";
+            clippedAmount = 35;
+            break;
+          case 2:
+            element.style.marginLeft = "30px";
+            clippedAmount = 33;
+            break;
+          case 3:
+            element.style.marginLeft = "45px";
+            clippedAmount = 31;
+            break;
+          case 4:
+            element.style.marginLeft = "60px";
+            clippedAmount = 29;
+            break;
+          case 5:
+            element.style.marginLeft = "75px";
+            clippedAmount = 27;
+            break;
+          case 6:
+            element.style.marginLeft = "90px";
+            clippedAmount = 25;
+            break;
+          default:
+            return; // Skip 'P' and other undefined levels
+        }
+
+        const clipTitle = (str, maxLen) =>
+          str.length <= maxLen
+            ? str
+            : str.slice(0, str.slice(0, maxLen).lastIndexOf(" ")) + "...";
+        const clippedText = clipTitle(item.text, clippedAmount);
+        displayText = `${clippedText} <span style="margin-left: 10px">${item.words} words</span>`; // Add space between text and numbers
+
+        element.innerHTML = displayText;
+
+        const wordCountIndex = displayText.indexOf(`${item.words} words`);
+        if (wordCountIndex !== -1) {
+          const beforeWordCount = displayText.slice(0, wordCountIndex);
+          const wordCountText = displayText.slice(wordCountIndex);
+
+          element.innerHTML = `${beforeWordCount}<span style="color: #61a9c2;">${wordCountText}</span>`;
+      
+        }
+        const updateCountChange =item.words;
+        // Append the element to the outline container
+        outlineContainer.appendChild(element);
+        console.log("testing haseeb element",updateCountChange)
+      
+
+      });
+      addRefreshTime(panelElement, currentSiteTitle);
+      addRemoveButton(panelElement, currentSiteTitle);
+       
+    }
   }
 
-  const headerElement = document.createElement("div");
-  headerElement.classList.add("wc_header");
-  headerElement.style.height = "125px";
-  headerElement.style.display = "flex";
-  headerElement.style.flexDirection = "column";
-  headerElement.style.alignItems = "center";
+  panelElement.innerHTML = "";
+  console.log("Current Site Title: ", currentSiteTitle);
 
-  const progressContainer = document.createElement("div");
-  progressContainer.classList.add("wc_progressContainer");
-  progressContainer.style.padding = "1px";
-  progressContainer.style.height = "70px";
-  progressContainer.style.display = "flex";
-  progressContainer.style.flexDirection = "column";
-  progressContainer.style.alignItems = "center";
-
-  addSiteTitle(currentSiteTitle, headerElement);
-  headerElement.appendChild(progressContainer);
-
-  const progressBarContainer = document.createElement("div");
-  progressBarContainer.style.backgroundColor = "#C9DFE4";
-  progressBarContainer.style.borderRadius = "15px";
-  progressBarContainer.style.width = "80%";
-  progressBarContainer.style.height = "10px";
-  progressBarContainer.style.margin = "10px 0";
-
-  const progressBarElement = document.createElement("div");
-  progressBarElement.style.backgroundColor = "#52A1BD";
-  progressBarElement.style.height = "100%";
-  progressBarElement.style.borderRadius = "15px";
-  progressBarElement.style.width = "0%";
-  progressBarContainer.appendChild(progressBarElement);
-
-  const updateGoalInStorage = async (newGoal) => {
-    const updatedDocuments = result.documents.map((doc) =>
-      doc.id === matchingDocument.id ? { ...doc, goal: newGoal } : doc
-    );
-    await chrome.storage.local.set({ documents: updatedDocuments });
-  };
-
-  const renderGoalContent = () => {
-    progressContainer.innerHTML = "";
-
-    if (!matchingDocument.goal || isNaN(matchingDocument.goal)) {
-      showSetGoalUI();
-    } else {
-      showGoalAndEditUI();
-    }
-  };
-
-  const showSetGoalUI = () => {
-    const setGoalButton = document.createElement("button");
-    setGoalButton.textContent = "Set Goal";
-    setGoalButton.style = "font-size: 14px; padding: 10px 20px; background-color: #61a5c2; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;";
-    progressContainer.appendChild(setGoalButton);
-
-    setGoalButton.addEventListener("click", () => {
-      const inputElement = createGoalInput();
-
-        // Create the <p> element after calling createGoalInput
-        const pElement = document.createElement("p");
-        pElement.innerHTML = "Set word count goal";
-        pElement.style = "font-size: 12px; color: grey; margin-top: 5px; text-align: center;";
-  
-        // Wrap the input and <p> elements in a container
-        const inputContainer = document.createElement("div");
-        inputContainer.appendChild(inputElement);
-        inputContainer.appendChild(pElement);
-
-      progressContainer.replaceChild(inputContainer, setGoalButton);
-
-      inputElement.addEventListener("keypress", (event) => {
-        if (event.key === "Enter") {
-          saveGoal(inputElement);
-        }
-      });
-
-      inputElement.addEventListener("blur", () => saveGoal(inputElement));
+  makeStoryHeader(currentSiteTitle, panelElement)
+    .then((matchingDocument) => {
+      if (matchingDocument) {
+        console.log("Document has matched. Making Structure");
+        buildStructure();
+      } else {
+        console.log("Cannot make Document structure. No Document has matched.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error occurred: ", error);
     });
-  };
-
-  const showGoalAndEditUI = () => {
-    const wordCountElement = createWordCountDisplay();
-    const editButton = createEditButton();
-    const wordCountContainer = document.createElement("div");
-
-    wordCountContainer.style.display = "flex";
-    wordCountContainer.style.alignItems = "center";
-    wordCountContainer.style.justifyContent = "center";
-
-    // Add progress bar first
-    progressContainer.appendChild(progressBarContainer);
-
-    // Then add word count and edit button container
-    wordCountContainer.append(wordCountElement, editButton);
-    progressContainer.appendChild(wordCountContainer);
-
-    const percentage = (matchingDocument.wordCount / matchingDocument.goal) * 100;
-    progressBarElement.style.width = `${Math.min(percentage, 100)}%`;
-    progressBarContainer.style.display = "block";
-
-    editButton.addEventListener("click", () => {
-      editButton.style.display = "none";
-      progressBarContainer.style.display = "none";
-      const inputElement = createGoalInput();
-      console.log("matchingDocument.goal.toLocaleString()", matchingDocument.goal)
-      inputElement.value = matchingDocument.goal;
-      
-      // Create the <p> element after calling createGoalInput
-      const pElement = document.createElement("p");
-      pElement.innerHTML = "Set word count goal";
-      pElement.style = "font-size: 12px; color: grey; margin-top: 5px; text-align: center;";
-
-      const inputContainer = document.createElement("div");
-      inputContainer.appendChild(inputElement);
-      inputContainer.appendChild(pElement);
-
-      wordCountContainer.replaceChild(inputContainer, wordCountElement);
-
-      inputElement.addEventListener("keypress", (event) => {
-        if (event.key === "Enter") {
-          saveGoal(inputElement);
-        }
-      });
-
-      inputElement.addEventListener("blur", () => saveGoal(inputElement));
-    });
-  };
-  
-  const createGoalInput = () => {
-    const inputElement = document.createElement("input");
-    const pElement = document.createElement("p");
-    inputElement.type = "number";
-    inputElement.min = "0";
-    inputElement.placeholder = "Enter goal";
-    inputElement.style = "font-size: 14px; padding: 5px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 12px;";
-    pElement.innerHTML = "Set word count goal";
-    return inputElement;
-  };
-
-  const createWordCountDisplay = () => {
-    const wordCountElement = document.createElement("div");
-    wordCountElement.style = "font-size: 14px; color: black; margin: 10px 0 20px;";
-    wordCountElement.textContent = `${matchingDocument.wordCount.toLocaleString()} / ${matchingDocument.goal.toLocaleString()} words`;
-    return wordCountElement;
-  };
-
-  const createEditButton = () => {
-    const editButton = document.createElement("button");
-    const editIcon = document.createElement("span");
-    editIcon.innerHTML = "&#9998;";
-    editButton.appendChild(editIcon);
-    editButton.style = "font-size: 12px; margin-left: 10px; margin-top: -11px; padding: 5px 10px; background-color: #61a5c2; color: white; border: none; border-radius: 5px; cursor: pointer;";
-    return editButton;
-  };
-
-  const saveGoal = (inputElement) => {
-    progressBarContainer.style.display = "block";
-    const newGoal = parseInt(inputElement.value.replace(/,/g, ""));
-    if (!isNaN(newGoal)) {
-      matchingDocument.goal = newGoal;
-      updateGoalInStorage(newGoal).then(renderGoalContent);
-    }
-  };
-
-  renderGoalContent();
-  panelElement.insertBefore(headerElement, panelElement.firstChild);
 }
 
 function addRefreshTime(panelElement, currentSiteTitle, updateCountChange= "deafult value") {
   if (currentUser == null) {
     return;
   }
-  
+  // Create the container for the refresh feature
   const refreshContainer = document.createElement("div");
   refreshContainer.style.textAlign = "center";
   refreshContainer.style.marginTop = "40px";
 
-  
+  // Create the refresh button
   const refreshButton = document.createElement("button");
   refreshButton.id = "refresh-button";
   refreshButton.innerHTML =
@@ -4926,11 +4959,8 @@ function addOutlineSeparator(panelElement) {
   separatorContainer.appendChild(separatorText);
   separatorContainer.appendChild(line2);
 
-  console.log("End---",trialCountdown)
   // Append the separator container to the panel element
-  if(currentUser ){
-    panelElement.appendChild(separatorContainer);
-  }
+  panelElement.appendChild(separatorContainer);
 
   return separatorContainer;
 }
