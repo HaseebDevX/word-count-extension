@@ -4294,10 +4294,10 @@ async function addWordCount(
           const completedPercentage = (wordCount / totalWords) * 100;
           progressBar.style.width =
             completedPercentage < 100 ? `${completedPercentage}%` : "100%";
-          existingProgressBar.style.display = !isNaN(totalWords)
+          existingProgressBar.style.display = !isNaN(totalWords) && totalWords > 0
             ? "block"
             : "none";
-          buttonElement.style.display = !isNaN(totalWords) ? "none" : "block";
+          buttonElement.style.display = !isNaN(totalWords) && totalWords > 0 ? "none" : "block";
         }
       }
     });
