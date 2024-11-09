@@ -2201,10 +2201,14 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
         event.target.classList.contains("wc_docTitleDisplayed") ||
         event.target.classList.contains("wc_wordsAndGoal")
       ) {
+        
         // Get the title of the clicked document
         let docTitle = event.target
           .closest(".wc_docWrap")
           .querySelector(".wc_docTitle").textContent;
+          console.log("Clicked a document ", docTitle);
+
+        chrome.storage.local.set({ docTitleSelected: docTitle });
         let contentDocumentBody =
           shadowRoot.getElementById("content-documents");
         //console.log("contentBody", contentDocumentBody);
@@ -4422,11 +4426,19 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
 
   // Await the asynchronous operation
   const result = await chrome.storage.local.get(["documents"]);
-
-
   matchingDocument = result.documents.find((document) =>
     currentSiteTitle.includes(document.title.trim())
   );
+
+  let selectedTitle = await chrome.storage.local.get(["docTitleSelected"])
+  selectedTitle = selectedTitle.docTitleSelected;
+  
+  if(!matchingDocument){
+    currentSiteTitle = selectedTitle
+    matchingDocument = result.documents.find((document) =>
+      selectedTitle.includes(document.title.trim())
+    );
+  }
 
   if (matchingDocument) {
 
