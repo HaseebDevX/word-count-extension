@@ -28,6 +28,8 @@ actionHoverIcon.src = chrome.runtime.getURL("assets/arrow.png");
 actionHoverIcon.alt = "Word Count";
 actionHoverIcon.className = "wc_action-hover";
 actionHoverIcon.style.display = "none";
+
+
 const loaderWrap = document.createElement("div");
 loaderWrap.id = "wc_progress-circle";
 loaderWrap.className = "wc_first-half";
@@ -2209,6 +2211,7 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
           console.log("Clicked a document ", docTitle);
 
         chrome.storage.local.set({ docTitleSelected: docTitle });
+
         let contentDocumentBody =
           shadowRoot.getElementById("content-documents");
         //console.log("contentBody", contentDocumentBody);
@@ -4433,13 +4436,14 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
   let selectedTitle = await chrome.storage.local.get(["docTitleSelected"])
   selectedTitle = selectedTitle.docTitleSelected;
   
-  if(!matchingDocument){
+  
+  if(!matchingDocument || selectedTitle){
     currentSiteTitle = selectedTitle
     matchingDocument = result.documents.find((document) =>
       selectedTitle.includes(document.title.trim())
     );
   }
-
+  console.log("selectedTitle", selectedTitle, matchingDocument)
   if (matchingDocument) {
 
     const headerElement = document.createElement("div");
@@ -4479,13 +4483,19 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
     buttonElement.style.display =
       matchingDocument.goal !== "" && matchingDocument.goal != 0 ? "none" : "block";
   
+      // Edit Icon
+      const actionEditIcon = document.createElement("img");
+      actionEditIcon.src = chrome.runtime.getURL("assets/edit.svg");
+      actionEditIcon.alt = "Edit Goal";
+      actionEditIcon.style.width = "15px";
+      actionEditIcon.style.height = "15px";
+
       // Only show the edit button if a goal is set
       const editButton = document.createElement("button");
-      editButton.innerHTML = "&#9998;"; // Pencil icon using HTML entity
+      editButton.appendChild(actionEditIcon);
       editButton.style.fontSize = "12px";
       editButton.style.marginLeft = "8px";
       editButton.style.padding = "4px";
-      editButton.style.backgroundColor = "#61a5c2";
       editButton.style.color = "white";
       editButton.style.border = "none";
       editButton.style.borderRadius = "20%"; // Make the button round
