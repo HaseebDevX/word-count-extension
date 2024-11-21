@@ -63,8 +63,14 @@ function clearCalendarEvents() {
   }
 }
 
-async function setCalendarEvents(events, dailyGoal) {
+async function setCalendarEvents(events, dailyGoal, result = {}) {
   clearCalendarEvents();
+  console.log("resultevents", events)
+  const selectedFilterOption = result?.selectedFilterOption || "documents";
+  
+  if(selectedFilterOption !== "documents"){
+    events = events.filter((event) => event.docName.trim() === selectedFilterOption.trim())
+  }
 
   const store = await chrome.storage.local.get()
   const counts = store.counts || {}
@@ -323,17 +329,23 @@ const findCurrentStreak = async () => {
 
 
 const prepareGraphAndChartData = () => {
-  chrome.storage.local.get(["dayWiseRecord", "dailyGoal"]).then((result) => {
+  chrome.storage.local.get(["dayWiseRecord", "dailyGoal", "selectedFilterOption"]).then((result) => {
     //console.log("graph and chart data" + result.dailyGoal);
     //console.log(result.dayWiseRecord);
+  
     var dataArray = $.map(result.dayWiseRecord, function (value, key) {
-      return {
-        date: key,
-        value: value,
-      };
+      const document = key.split("/");
+      // if(document.length > 1){
+        return {
+          date: document[0],
+          docId: document[1],
+          docName: document[2],
+          value: value,
+        };
+      // }
     });
     //console.log(dataArray);
-    setCalendarEvents(dataArray, result.dailyGoal);
+    setCalendarEvents(dataArray, result.dailyGoal, result);
    // if(result.dayWiseRecord) {
      
    // }
