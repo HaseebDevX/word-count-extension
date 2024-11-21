@@ -94,16 +94,10 @@ console.log("events", events)
   }
   const shadowRoot = hostElement.shadowRoot;
 
-  var status = 0;
-
-  // Check selected Doc
-  console.log("old Events", events)
+    var status = 0;
     if(selectedFilterOption !== "documents"){
-      // console.log("")
       events = events.filter((event) => event.docName.trim() === selectedFilterOption.trim())
     }
-    console.log("new Events", events)
-  // END
 
   for (const event of events) {
     //console.log(event.date);

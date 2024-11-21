@@ -4874,26 +4874,26 @@ function addRemoveButton(panelElement, documentTitle) {
   dropdownMenu.style.width = "200px";
 
   // Add the first option: Remove Story Only
-  const removeStoryOption = document.createElement("div");
-  removeStoryOption.textContent = "REMOVE STORY ONLY";
-  removeStoryOption.style.padding = "10px";
-  removeStoryOption.style.cursor = "pointer";
-  removeStoryOption.style.color = "#FF3B30";
-  removeStoryOption.style.fontWeight = "bold";
-  removeStoryOption.style.margin = "5px";
+  // const removeStoryOption = document.createElement("div");
+  // removeStoryOption.textContent = "REMOVE STORY ONLY";
+  // removeStoryOption.style.padding = "10px";
+  // removeStoryOption.style.cursor = "pointer";
+  // removeStoryOption.style.color = "#FF3B30";
+  // removeStoryOption.style.fontWeight = "bold";
+  // removeStoryOption.style.margin = "5px";
 
-  removeStoryOption.addEventListener("mouseover", () => {
-    removeStoryOption.style.backgroundColor = "#FFEBEB"; // Light red on hover
-  });
-  removeStoryOption.addEventListener("mouseout", () => {
-    removeStoryOption.style.backgroundColor = "white";
-  });
+  // removeStoryOption.addEventListener("mouseover", () => {
+  //   removeStoryOption.style.backgroundColor = "#FFEBEB"; // Light red on hover
+  // });
+  // removeStoryOption.addEventListener("mouseout", () => {
+  //   removeStoryOption.style.backgroundColor = "white";
+  // });
 
-  removeStoryOption.addEventListener("click", () => {
-    console.log("Removing story only: ", documentTitle);
-    removeDocument(documentTitle);
-    dropdownMenu.style.display = "none"; // Close the dropdown
-  });
+  // removeStoryOption.addEventListener("click", () => {
+  //   console.log("Removing story only: ", documentTitle);
+  //   removeDocument(documentTitle);
+  //   dropdownMenu.style.display = "none"; // Close the dropdown
+  // });
 
   // Add the second option: Remove Story & Word Count Data
   const removeStoryAndDataOption = document.createElement("div");
@@ -4923,7 +4923,7 @@ function addRemoveButton(panelElement, documentTitle) {
     dropdownMenu.style.display = "none"; // Close the dropdown
   });
 
-  dropdownMenu.appendChild(removeStoryOption);
+  // dropdownMenu.appendChild(removeStoryOption);
   dropdownMenu.appendChild(removeStoryAndDataOption);
 
   // Toggle dropdown menu visibility on button click
