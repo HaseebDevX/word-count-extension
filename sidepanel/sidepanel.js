@@ -2433,7 +2433,6 @@ $("#daily-goal-input").on("keydown", function (event) {
 });
 
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
-  console.log("changes", changes);
   if (changes.documents) {
     chrome.storage.local
       .get(["wordCountSetting", "progressBarSetting"])
@@ -4012,6 +4011,7 @@ chrome.storage.local
 function removeDocFromDailyStats(id) {
   console.log("invoked");
   chrome.storage.local.get(["dailyStats"]).then((result) => {
+    console.log("Step1", dailyStats)
     const dailyStats = result.dailyStats || {};
     let array = Object.keys(dailyStats);
     updatedStats = {};
@@ -4064,7 +4064,7 @@ async function removeDocFromDailyStatsEach(date, id) {
           updatedStats = result.dailyStats;
         }
       });
-
+      console.log("Step2", updatedStats)
       // Send message to update day-wise records after storage is successfully set
       chrome.runtime.sendMessage({
         action: "updateDayWiseRecords",

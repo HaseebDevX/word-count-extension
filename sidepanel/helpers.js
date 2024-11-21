@@ -63,8 +63,17 @@ function clearCalendarEvents() {
   }
 }
 
-async function setCalendarEvents(events, dailyGoal) {
+async function setCalendarEvents(events, dailyGoal, result = {}) {
   clearCalendarEvents();
+  chrome.storage.local.get(["documents"]).then(async (docs) => {
+
+  const dailyStats = result?.dailyStats
+  const selectedFilterOption = result?.selectedFilterOption || "documents";
+console.log("selectedFilterOption", selectedFilterOption)
+console.log("dailyStats", dailyStats)
+console.log("documents", docs.documents)
+
+console.log("events", events)
 
   const store = await chrome.storage.local.get()
   const counts = store.counts || {}
@@ -77,13 +86,30 @@ async function setCalendarEvents(events, dailyGoal) {
 
   //console.log('partialDays', partialDays)
   //console.log('partialDay', store)
+  const hostElement = document.querySelector("#shadow-host");
+
+  if (!hostElement) {
+    console.error("Host element not found.");
+    return;
+  }
+  const shadowRoot = hostElement.shadowRoot;
+
   var status = 0;
+
+  // Check selected Doc
+  console.log("old Events", events)
+    if(selectedFilterOption !== "documents"){
+      // console.log("")
+      events = events.filter((event) => event.docName.trim() === selectedFilterOption.trim())
+    }
+    console.log("new Events", events)
+  // END
 
   for (const event of events) {
     //console.log(event.date);
     //console.log(event.value);
     const date = new Date(event.date);
-       
+
     status = 0;
     if(event.value > 0) {
       if(writingStreakType == "any_word"){
@@ -109,13 +135,7 @@ async function setCalendarEvents(events, dailyGoal) {
 
     console.log(event.value, status);
     //console.log("customWordCount"+customWordCount);
-    const hostElement = document.querySelector("#shadow-host");
-
-    if (!hostElement) {
-      console.error("Host element not found.");
-      return;
-    }
-    const shadowRoot = hostElement.shadowRoot;
+  
   
     const day = shadowRoot.querySelector(`[data-calendar-day="${event.date}"]`);
     const CurrentDate = date.getDate(); 
@@ -174,6 +194,7 @@ async function setCalendarEvents(events, dailyGoal) {
     }
   }
   // calendarTooptip();
+});
 }
 
 /*
@@ -323,17 +344,19 @@ const findCurrentStreak = async () => {
 
 
 const prepareGraphAndChartData = () => {
-  chrome.storage.local.get(["dayWiseRecord", "dailyGoal"]).then((result) => {
+  chrome.storage.local.get(["dayWiseRecord", "dailyGoal", "dailyStats", "selectedFilterOption"]).then((result) => {
     //console.log("graph and chart data" + result.dailyGoal);
-    //console.log(result.dayWiseRecord);
     var dataArray = $.map(result.dayWiseRecord, function (value, key) {
+      const document = key.split("/");
       return {
-        date: key,
+        date: document[0],
+        docId: document[1],
+        docName: document[2],
         value: value,
       };
     });
     //console.log(dataArray);
-    setCalendarEvents(dataArray, result.dailyGoal);
+    setCalendarEvents(dataArray, result.dailyGoal, result);
    // if(result.dayWiseRecord) {
      
    // }
@@ -346,6 +369,8 @@ const prepareGraphAndChartDataDemo = (dayWiseRecord, dailyGoal) => {
     var dataArray = $.map(dayWiseRecord, function (value, key) {
       return {
         date: key,
+        docId: "",
+        docName: "",
         value: value,
       };
     });

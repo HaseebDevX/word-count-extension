@@ -1,6 +1,7 @@
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "fetchOutline") {
+    console.log("fetchOutline, fetchOutline, fetchOutline, fetchOutline, fetchOutline, fetchOutline")
     try {
       console.log("Okay")
 

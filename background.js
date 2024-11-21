@@ -59,7 +59,7 @@ chrome.runtime.onInstalled.addListener(async (install) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("Haseeb action",request)
+
   if (request.action === "getOutline") {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       // Check if tabs array has any element
@@ -377,7 +377,7 @@ function scrapDocInfo(url, type) {
         documentName = text.substring(contentStartIndex + 9, contentEndIndex);
       }
 
-      updateDailyStats(documentId, countDocWords, type);
+      updateDailyStats(documentId, countDocWords, type, documentName);
 
       /*const counts = store.counts || {}
       const today = new Date().toISOString().split("T")[0]
@@ -579,7 +579,7 @@ async function hasDocument() {
     (c) => c.url === chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH)
   );
 }
-
+ 
 async function setupOffscreenDocument(path) {
   // If we do not have a document, we are already setup and can skip
   if (!(await hasDocument())) {
@@ -789,7 +789,7 @@ const saveToStorage = (key, value) => {
   });
 };
 
-const updateDailyStats = (documentId, words, type) => {
+const updateDailyStats = (documentId, words, type, documentName) => {
   let today = getTodayDate();
   chrome.storage.local.get(["dailyStats"]).then((result) => {
     const dailyStats = result.dailyStats || {};
@@ -811,10 +811,10 @@ const updateDailyStats = (documentId, words, type) => {
     }
 
     if (dailyStats[today]) {
-      dailyStats[today][documentId] = [lastWordCount, words];
+      dailyStats[today][documentId] = [lastWordCount, words, documentName];
     } else {
       dailyStats[today] = {
-        [documentId]: [lastWordCount, words],
+        [documentId]: [lastWordCount, words, documentName],
       };
     }
 
@@ -846,8 +846,9 @@ function getLastSavedWords(dailyStats, documentId, acc) {
 }
 
 function createDayWiseArray(dailyStats, today = false) {
-  //console.log(dailyStats);
+  
   chrome.storage.local.get(["negativeWordSetting"]).then((result) => {
+  
     let allowNegative = "true";
     if (result.negativeWordSetting && result.negativeWordSetting == "false") {
       allowNegative = "false";
@@ -857,6 +858,7 @@ function createDayWiseArray(dailyStats, today = false) {
       let todayDate = getTodayDate();
       let todayDocs = dailyStats[todayDate];
       let docKeys = Object.keys(todayDocs);
+      let todayParams = {};
       let todayWords = 0;
       docKeys.map((doc) => {
         let differerce = todayDocs[doc][1] - todayDocs[doc][0];
@@ -864,17 +866,20 @@ function createDayWiseArray(dailyStats, today = false) {
           differerce = 0;
         }
 
-        todayWords = todayWords + differerce;
+        todayParams = {
+          todayWords: todayWords + differerce,
+          document: `${doc}/${todayDocs[doc][2]}`
+        }
       });
 
       chrome.storage.local.get(["dayWiseRecord"], function (result) {
         if (result.dayWiseRecord) {
           let temp = result.dayWiseRecord;
-          temp[todayDate] = todayWords;
+          temp[`${todayDate}/${todayParams.document}`] = todayParams.todayWords;
           chrome.storage.local.set({ dayWiseRecord: temp });
         } else {
           let temp = {};
-          temp[todayDate] = todayWords;
+          temp[`${todayDate}/${todayParams.document}`] = todayParams.todayWords;
           chrome.storage.local.set({ dayWiseRecord: temp });
         }
       });
@@ -890,7 +895,7 @@ function createDayWiseArray(dailyStats, today = false) {
           if (differerce < 0 && allowNegative == "false") {
             differerce = 0;
           }
-          dayWiseRecord[day] = dayWiseRecord[day] + differerce;
+          dayWiseRecord[`${day}/${doc}/${dayDocs[doc][2]}`] = dayWiseRecord[day] + differerce;
         });
       });
       chrome.storage.local.set({ dayWiseRecord: dayWiseRecord });
