@@ -65,7 +65,7 @@ function clearCalendarEvents() {
 
 async function setCalendarEvents(events, dailyGoal, result = {}) {
   clearCalendarEvents();
-  console.log("resultevents", events)
+  
   const selectedFilterOption = result?.selectedFilterOption || "documents";
   
   if(selectedFilterOption !== "documents"){
@@ -83,13 +83,24 @@ async function setCalendarEvents(events, dailyGoal, result = {}) {
 
   //console.log('partialDays', partialDays)
   //console.log('partialDay', store)
-  var status = 0;
+  const hostElement = document.querySelector("#shadow-host");
+
+  if (!hostElement) {
+    console.error("Host element not found.");
+    return;
+  }
+  const shadowRoot = hostElement.shadowRoot;
+
+    var status = 0;
+    if(selectedFilterOption !== "documents"){
+      events = events.filter((event) => event.docName.trim() === selectedFilterOption.trim())
+    }
 
   for (const event of events) {
     //console.log(event.date);
     //console.log(event.value);
     const date = new Date(event.date);
-       
+
     status = 0;
     if(event.value > 0) {
       if(writingStreakType == "any_word"){
@@ -115,13 +126,7 @@ async function setCalendarEvents(events, dailyGoal, result = {}) {
 
     console.log(event.value, status);
     //console.log("customWordCount"+customWordCount);
-    const hostElement = document.querySelector("#shadow-host");
-
-    if (!hostElement) {
-      console.error("Host element not found.");
-      return;
-    }
-    const shadowRoot = hostElement.shadowRoot;
+  
   
     const day = shadowRoot.querySelector(`[data-calendar-day="${event.date}"]`);
     const CurrentDate = date.getDate(); 
@@ -358,6 +363,8 @@ const prepareGraphAndChartDataDemo = (dayWiseRecord, dailyGoal) => {
     var dataArray = $.map(dayWiseRecord, function (value, key) {
       return {
         date: key,
+        docId: "",
+        docName: "",
         value: value,
       };
     });

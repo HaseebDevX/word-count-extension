@@ -59,7 +59,7 @@ chrome.runtime.onInstalled.addListener(async (install) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("Haseeb action",request)
+
   if (request.action === "getOutline") {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       // Check if tabs array has any element
@@ -579,7 +579,7 @@ async function hasDocument() {
     (c) => c.url === chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH)
   );
 }
-
+ 
 async function setupOffscreenDocument(path) {
   // If we do not have a document, we are already setup and can skip
   if (!(await hasDocument())) {
