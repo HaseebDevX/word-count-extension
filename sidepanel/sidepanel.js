@@ -4843,7 +4843,7 @@ function addRefreshTime(
   refreshNote.style.fontSize = "10px";
   refreshNote.innerHTML = `
       Outline Details do not update live.<br>
-      Refresh browser to update Outline Word Counts.
+      Click REFRESH to update Outline Word Count.
     `;
 
   // Add the refresh time and note to the container
