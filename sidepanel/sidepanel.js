@@ -29,7 +29,6 @@ actionHoverIcon.alt = "Word Count";
 actionHoverIcon.className = "wc_action-hover";
 actionHoverIcon.style.display = "none";
 
-
 const loaderWrap = document.createElement("div");
 loaderWrap.id = "wc_progress-circle";
 loaderWrap.className = "wc_first-half";
@@ -549,7 +548,7 @@ let wcext_sidebar =
                </div>
             </div>
          </div>
-         <div id = "content-story" style="display:none; ">
+         <div id="content-story" style="display:none; ">
          </div>
          <div id="wc_free_trial" style="display: none; ">
             <div id="loading-overlay" style="
@@ -1281,7 +1280,7 @@ function addShadowEventListeners() {
   // Tab stats
   shadowRoot.addEventListener("click", function (event) {
     if (event.target.id === "tab-stats") {
-      console.log("Tab Clicked ")
+      console.log("Tab Clicked ");
       initializeStats();
       shadowRoot.querySelector("#content-story").style.display = "none";
       shadowRoot.querySelector("#content-story").innerHTML = "none";
@@ -1323,8 +1322,11 @@ function addShadowEventListeners() {
           const selectedOption = this.querySelector("option:checked");
           const id = selectedOption ? selectedOption.id : null;
           const value = this.value;
-          chrome.storage.local.set({ selectedFilterOption: value })
-            .catch((error) => console.error("Error saving filter option:", error));
+          chrome.storage.local
+            .set({ selectedFilterOption: value })
+            .catch((error) =>
+              console.error("Error saving filter option:", error)
+            );
           let updatedStats = {};
 
           if (value !== "documents") {
@@ -1364,7 +1366,10 @@ function addShadowEventListeners() {
       chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
         let savedValue = result.selectedFilterOption;
         const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
-        wcSelectWrapper.value = savedValue && savedValue !== "" && savedValue !== null ? savedValue : "documents";
+        wcSelectWrapper.value =
+          savedValue && savedValue !== "" && savedValue !== null
+            ? savedValue
+            : "documents";
         wcSelectWrapper.dispatchEvent(new Event("change"));
       });
     }
@@ -1461,13 +1466,14 @@ function addShadowEventListeners() {
         chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
           let savedValue = result.selectedFilterOption;
           const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
-          wcSelectWrapper.value = savedValue && savedValue !== "" && savedValue !== null ? savedValue : "documents";
+          wcSelectWrapper.value =
+            savedValue && savedValue !== "" && savedValue !== null
+              ? savedValue
+              : "documents";
           wcSelectWrapper.dispatchEvent(new Event("change"));
-          
-          chrome.runtime.sendMessage({ action: "getDocInfo", url: url });
 
+          chrome.runtime.sendMessage({ action: "getDocInfo", url: url });
         });
-        
       });
     }
   });
@@ -1929,30 +1935,32 @@ document.addEventListener("click", function (event) {
 });
 
 function renderListing(docs, showWordCountOnly, showProgressBar) {
-  chrome.storage.local.get(["selectedFilterOption"]).then((result) => {
-    let savedValue = result.selectedFilterOption;
-  if (docs === undefined || docs === "") {
-    docs = [];
-  }
+  chrome.storage.local
+    .get(["selectedFilterOption"])
+    .then((result) => {
+      let savedValue = result.selectedFilterOption;
+      if (docs === undefined || docs === "") {
+        docs = [];
+      }
 
-  // Find the host element that contains the shadow DOM
-  const hostElement = document.querySelector("#shadow-host");
+      // Find the host element that contains the shadow DOM
+      const hostElement = document.querySelector("#shadow-host");
 
-  if (!hostElement) {
-    console.error("Host element not found.");
-    return;
-  }
+      if (!hostElement) {
+        console.error("Host element not found.");
+        return;
+      }
 
-  // Access the shadow root of the host element
-  const shadowRoot = hostElement.shadowRoot;
+      // Access the shadow root of the host element
+      const shadowRoot = hostElement.shadowRoot;
 
-  if (!shadowRoot) {
-    console.error("Shadow root not found.");
-    return;
-  }
+      if (!shadowRoot) {
+        console.error("Shadow root not found.");
+        return;
+      }
 
-  // Define CSS styles as a string for DocsWrapper HTML
-  const cssStyles = `
+      // Define CSS styles as a string for DocsWrapper HTML
+      const cssStyles = `
     .wc_docWrap {
       padding: 10px 0 31px 0;
       margin: 6px 4px;
@@ -2053,60 +2061,62 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
     
   `;
 
-  // Create a <style> element and add CSS styles to it
-  const styleElement = document.createElement("style");
-  styleElement.textContent = cssStyles;
-  shadowRoot.appendChild(styleElement);
+      // Create a <style> element and add CSS styles to it
+      const styleElement = document.createElement("style");
+      styleElement.textContent = cssStyles;
+      shadowRoot.appendChild(styleElement);
 
-  // Clear existing content inside the shadow DOM
-  const wcDocsWrapper = shadowRoot.querySelector("#wc_docsWrapper");
-  const wcTotalWordsCountWrap = shadowRoot.querySelector(
-    "#wc_totalWordsCountWrap"
-  );
-  const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
-  const wcSelectWrapperRaw = shadowRoot.querySelector(
-    "#filter-startup-rawdata"
-  );
-  const wcSelectWrapperEdit = shadowRoot.querySelector("#filter-startup-add");
-  wcSelectWrapper.innerHTML = "";
-  wcDocsWrapper.innerHTML = ""; // Clear previous content
-  wcTotalWordsCountWrap.style.display = docs.length > 0 ? "block" : "none"; // Show/hide total words count
+      // Clear existing content inside the shadow DOM
+      const wcDocsWrapper = shadowRoot.querySelector("#wc_docsWrapper");
+      const wcTotalWordsCountWrap = shadowRoot.querySelector(
+        "#wc_totalWordsCountWrap"
+      );
+      const wcSelectWrapper = shadowRoot.querySelector("#filter-startup");
+      const wcSelectWrapperRaw = shadowRoot.querySelector(
+        "#filter-startup-rawdata"
+      );
+      const wcSelectWrapperEdit = shadowRoot.querySelector(
+        "#filter-startup-add"
+      );
+      wcSelectWrapper.innerHTML = "";
+      wcDocsWrapper.innerHTML = ""; // Clear previous content
+      wcTotalWordsCountWrap.style.display = docs.length > 0 ? "block" : "none"; // Show/hide total words count
 
-  let totalWordsCount = 0;
-  // Build HTML for each document item
-  let docHtml = "";
-  docs.forEach((item) => {
-    totalWordsCount += item.wordCount;
-    const clipTitle = (str, maxLen) =>
-      str.length <= maxLen
-        ? str
-        : str.slice(0, str.slice(0, maxLen).lastIndexOf(" ")) + "...";
-    const clippedTitle = clipTitle(item.title, 40);
+      let totalWordsCount = 0;
+      // Build HTML for each document item
+      let docHtml = "";
+      docs.forEach((item) => {
+        totalWordsCount += item.wordCount;
+        const clipTitle = (str, maxLen) =>
+          str.length <= maxLen
+            ? str
+            : str.slice(0, str.slice(0, maxLen).lastIndexOf(" ")) + "...";
+        const clippedTitle = clipTitle(item.title, 40);
 
-    docHtml += `
+        docHtml += `
       <div class="wc_docWrapOuter"> <!-- Outer wrapper for each document -->
         <div class="wc_docWrap">
           <div class="wc_docInfo">
             <div class="wc_docTitle">${item.title}</div>
             <div class="wc_docTitleDisplayed">${clippedTitle}</div>
             <div class="wc_docStats" data-id="${item.id}">`; // Opening wc_docStats div
-    if (showWordCountOnly) {
-      docHtml += `
+        if (showWordCountOnly) {
+          docHtml += `
       <span>${formatNumberWithCommas(item.wordCount)} words</span>
         <div class="wc_docWords">
         </div>
       `;
-    } else if (showProgressBar && item.goal > 0) {
-      if (item.goal === "") {
-        // Display "No goal added" if no goal is set
-        docHtml += `
+        } else if (showProgressBar && item.goal > 0) {
+          if (item.goal === "") {
+            // Display "No goal added" if no goal is set
+            docHtml += `
             <span class = "wc_addGoalNumber" style="color: #000000; font-family: Ubuntu;">
               ${formatNumberWithCommas(item.wordCount)} words
             </span>
             <span class = "wc_addGoalText" style="font-style:italic; color: #52a1bd; font-family: Ubuntu; margin-left: 10px"> Add Goal</span>
         `;
-      } else {
-        docHtml += `
+          } else {
+            docHtml += `
           <div class="wc_docWordsProgressWrap">
             <div class="wc_docWordsProgress" style="background-color: #C9DFE4; border-radius: 15px;">
               <div class = "wc_docFill" style="background-color: #52A1BD; color: white; height: 10px; border-radius: 15px; width: ${getGoalPercentage(
@@ -2121,123 +2131,129 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
        
           </div>
          `;
-      }
-    } else {
-      if (item.goal == "" || item.goal <= 0) {
-        docHtml += `
+          }
+        } else {
+          if (item.goal == "" || item.goal <= 0) {
+            docHtml += `
             <span class= "wc_wordsAndGoal" style="color: #000000; font-family: Ubuntu">
               ${formatNumberWithCommas(item.wordCount)} words
             </span>
             ${getAddUpdateGoalLink(item.goal)}
         `;
-      } else {
-        docHtml += `
+          } else {
+            docHtml += `
             <span class= "wc_wordsAndGoal" style="color: #000000; font-family: Ubuntu;">
               ${formatNumberWithCommas(
                 item.wordCount
               )} / ${formatNumberWithCommas(item.goal)} words
             </span>
         `;
-      }
-    }
+          }
+        }
 
-    docHtml += `
+        docHtml += `
           </div> <!-- Close wc_docStats -->
         </div> <!-- Close wc_docInfo -->
       </div> <!-- Close wc_docWrap -->
     </div> <!-- Close wc_docWrapOuter -->
     `;
-  });
+      });
 
-  // Update the HTML content of the respective wrappers
-  wcDocsWrapper.innerHTML = docHtml;
+      // Update the HTML content of the respective wrappers
+      wcDocsWrapper.innerHTML = docHtml;
 
-  let selectHtml = "";
-  let selectsAddHtml = "";
+      let selectHtml = "";
+      let selectsAddHtml = "";
 
-  const isSelected = savedValue === "documents" ? "selected" : "";
-  selectHtml += `<option value="documents" ${isSelected == "" ? "selected" : isSelected}> All Documents</option>`;
+      const isSelected = savedValue === "documents" ? "selected" : "";
+      selectHtml += `<option value="documents" ${
+        isSelected == "" ? "selected" : isSelected
+      }> All Documents</option>`;
 
-  docs.forEach((item) => {
-    const isSelected = savedValue === item.title ? "selected" : "";
-    selectHtml += `<option value="${item.title}" id="${item.id}" ${isSelected} >${item.title}</option>`;
-    selectsAddHtml += selectHtml;
-  });
+      docs.forEach((item) => {
+        const isSelected = savedValue === item.title ? "selected" : "";
+        selectHtml += `<option value="${item.title}" id="${item.id}" ${isSelected} >${item.title}</option>`;
+        selectsAddHtml += selectHtml;
+      });
 
-  wcSelectWrapper.innerHTML = selectHtml;
-  wcSelectWrapperRaw.innerHTML = selectHtml;
-  wcSelectWrapperEdit.innerHTML = selectsAddHtml;
+      wcSelectWrapper.innerHTML = selectHtml;
+      wcSelectWrapperRaw.innerHTML = selectHtml;
+      wcSelectWrapperEdit.innerHTML = selectsAddHtml;
 
-  // Handle the case when there are no documents
-  if (docs.length === 0) {
-    wcDocsWrapper.innerHTML = `
+      // Handle the case when there are no documents
+      if (docs.length === 0) {
+        wcDocsWrapper.innerHTML = `
     <div style="font-size: 14px; color: #000; background: transparent; font-weight: normal;">
       ${emptyMsg}
     </div>
   `;
-  }
-
-  // Update total words count
-  let formattedNumber = formatNumberWithCommas(totalWordsCount);
-  shadowRoot.querySelector("#wc_totalWordsCount").innerHTML = formattedNumber;
-
-  // Ensure the event listener is added only once
-  if (!wcDocsWrapper.classList.contains("click-listener-added")) {
-    wcDocsWrapper.classList.add("click-listener-added");
-
-    wcDocsWrapper.addEventListener("click", function (event) {
-      // Stop the event from bubbling up to prevent multiple calls
-      event.stopPropagation();
-      storyDetailsPageOpened = true;
-
-      //console.log(event.target.classList);
-      if (
-        event.target.classList.contains("wc_docWrap") ||
-        event.target.classList.contains("wc_docTitle") ||
-        event.target.classList.contains("wc_docWords") ||
-        event.target.classList.contains("wc_docStats") ||
-        event.target.classList.contains("wc_docFill") ||
-        event.target.classList.contains("wc_docWordsProgress") ||
-        event.target.classList.contains("wc_addGoalNumber") ||
-        event.target.classList.contains("wc_addGoalText") ||
-        event.target.classList.contains("wc_docTitleDisplayed") ||
-        event.target.classList.contains("wc_wordsAndGoal")
-      ) {
-        
-        // Get the title of the clicked document
-        let docTitle = event.target
-          .closest(".wc_docWrap")
-          .querySelector(".wc_docTitle").textContent;
-          console.log("Clicked a document ", docTitle);
-
-        chrome.storage.local.set({ docTitleSelected: docTitle });
-
-        let contentDocumentBody =
-          shadowRoot.getElementById("content-documents");
-        //console.log("contentBody", contentDocumentBody);
-        contentDocumentBody.style.display = "none";
-        shadowRoot.querySelector("#content-documents").style.display = "none";
-        shadowRoot.querySelector("#content-stats").style.display = "none";
-        shadowRoot.querySelector("#content-story").style.display = "block";
-        shadowRoot.querySelector("#content-settings").style.display = "none";
-        shadowRoot.querySelector("#content-contact").style.display = "none";
-        shadowRoot.querySelector("#content-profile").style.display = "none";
-        shadowRoot.querySelector("#content-rowdata").style.display = "none";
-
-        isStoryPanelOpen = true;
-        globalPanelElement = shadowRoot.getElementById("content-story");
-        globalSiteTitle = docTitle;
-        globalPanelElement.style.display = "block";
-        console.log("This is #1");
-        // Pass the title to the initStoryPage function
-        initStoryPage(globalPanelElement, docTitle);
       }
-    });
-  }
-  wcSelectWrapper.value = savedValue !== "" ? savedValue : "documents";
-  wcSelectWrapper.dispatchEvent(new Event("change"));
-   
-}).catch((error) => console.error("Error fetching saved filter option:", error));
+
+      // Update total words count
+      let formattedNumber = formatNumberWithCommas(totalWordsCount);
+      shadowRoot.querySelector("#wc_totalWordsCount").innerHTML =
+        formattedNumber;
+
+      // Ensure the event listener is added only once
+      if (!wcDocsWrapper.classList.contains("click-listener-added")) {
+        wcDocsWrapper.classList.add("click-listener-added");
+
+        wcDocsWrapper.addEventListener("click", function (event) {
+          // Stop the event from bubbling up to prevent multiple calls
+          event.stopPropagation();
+          storyDetailsPageOpened = true;
+
+          //console.log(event.target.classList);
+          if (
+            event.target.classList.contains("wc_docWrap") ||
+            event.target.classList.contains("wc_docTitle") ||
+            event.target.classList.contains("wc_docWords") ||
+            event.target.classList.contains("wc_docStats") ||
+            event.target.classList.contains("wc_docFill") ||
+            event.target.classList.contains("wc_docWordsProgress") ||
+            event.target.classList.contains("wc_addGoalNumber") ||
+            event.target.classList.contains("wc_addGoalText") ||
+            event.target.classList.contains("wc_docTitleDisplayed") ||
+            event.target.classList.contains("wc_wordsAndGoal")
+          ) {
+            // Get the title of the clicked document
+            let docTitle = event.target
+              .closest(".wc_docWrap")
+              .querySelector(".wc_docTitle").textContent;
+            console.log("Clicked a document ", docTitle);
+
+            chrome.storage.local.set({ docTitleSelected: docTitle });
+
+            let contentDocumentBody =
+              shadowRoot.getElementById("content-documents");
+            //console.log("contentBody", contentDocumentBody);
+            contentDocumentBody.style.display = "none";
+            shadowRoot.querySelector("#content-documents").style.display =
+              "none";
+            shadowRoot.querySelector("#content-stats").style.display = "none";
+            shadowRoot.querySelector("#content-story").style.display = "block";
+            shadowRoot.querySelector("#content-settings").style.display =
+              "none";
+            shadowRoot.querySelector("#content-contact").style.display = "none";
+            shadowRoot.querySelector("#content-profile").style.display = "none";
+            shadowRoot.querySelector("#content-rowdata").style.display = "none";
+
+            isStoryPanelOpen = true;
+            globalPanelElement = shadowRoot.getElementById("content-story");
+            globalSiteTitle = docTitle;
+            globalPanelElement.style.display = "block";
+            // Pass the title to the initStoryPage function
+
+            initStoryPage(globalPanelElement, docTitle);
+          }
+        });
+      }
+      wcSelectWrapper.value = savedValue !== "" ? savedValue : "documents";
+      wcSelectWrapper.dispatchEvent(new Event("change"));
+    })
+    .catch((error) =>
+      console.error("Error fetching saved filter option:", error)
+    );
 }
 
 // async function renderRawDataAll(docs) {
@@ -2448,6 +2464,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
       const tabInfo = await getActiveTabInfo();
       const currentSiteTitle = tabInfo.title.replace(" - Google Docs", "");
       globalPanelElement = shadowRoot.getElementById("content-story");
+
       updateOutlineData([globalPanelElement, currentSiteTitle]);
     } else {
       updateOutlineData([]);
@@ -3226,7 +3243,6 @@ function initializeSidebar() {
         const tabStats = shadowRoot.querySelector("#tab-stats");
         if (tabStats) {
           tabStats.click();
-          
         }
       }
     }
@@ -4011,7 +4027,7 @@ chrome.storage.local
 function removeDocFromDailyStats(id) {
   console.log("invoked");
   chrome.storage.local.get(["dailyStats"]).then((result) => {
-    console.log("Step1", dailyStats)
+    console.log("Step1", dailyStats);
     const dailyStats = result.dailyStats || {};
     let array = Object.keys(dailyStats);
     updatedStats = {};
@@ -4064,7 +4080,7 @@ async function removeDocFromDailyStatsEach(date, id) {
           updatedStats = result.dailyStats;
         }
       });
-      console.log("Step2", updatedStats)
+      console.log("Step2", updatedStats);
       // Send message to update day-wise records after storage is successfully set
       chrome.runtime.sendMessage({
         action: "updateDayWiseRecords",
@@ -4297,10 +4313,10 @@ async function addWordCount(
           const completedPercentage = (wordCount / totalWords) * 100;
           progressBar.style.width =
             completedPercentage < 100 ? `${completedPercentage}%` : "100%";
-          existingProgressBar.style.display = !isNaN(totalWords) && totalWords > 0
-            ? "block"
-            : "none";
-          buttonElement.style.display = !isNaN(totalWords) && totalWords > 0 ? "none" : "block";
+          existingProgressBar.style.display =
+            !isNaN(totalWords) && totalWords > 0 ? "block" : "none";
+          buttonElement.style.display =
+            !isNaN(totalWords) && totalWords > 0 ? "none" : "block";
         }
       }
     });
@@ -4355,10 +4371,10 @@ async function addWordCount(
           const completedPercentage = (wordCount / totalWords) * 100;
           progressBar.style.width =
             completedPercentage < 100 ? `${completedPercentage}%` : "100%";
-          existingProgressBar.style.display = !isNaN(totalWords) && totalWords > 0
-            ? "block"
-            : "none";
-          buttonElement.style.display = !isNaN(totalWords) && totalWords > 0 ? "none" : "block";
+          existingProgressBar.style.display =
+            !isNaN(totalWords) && totalWords > 0 ? "block" : "none";
+          buttonElement.style.display =
+            !isNaN(totalWords) && totalWords > 0 ? "none" : "block";
         }
       }
     });
@@ -4433,19 +4449,17 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
     currentSiteTitle.includes(document.title.trim())
   );
 
-  let selectedTitle = await chrome.storage.local.get(["docTitleSelected"])
+  let selectedTitle = await chrome.storage.local.get(["docTitleSelected"]);
   selectedTitle = selectedTitle.docTitleSelected;
-  
-  
-  if(!matchingDocument || selectedTitle){
-    currentSiteTitle = selectedTitle
+
+  if (!matchingDocument || selectedTitle) {
+    currentSiteTitle = selectedTitle;
     matchingDocument = result.documents.find((document) =>
       selectedTitle.includes(document.title.trim())
     );
   }
-  console.log("selectedTitle", selectedTitle, matchingDocument)
-  if (matchingDocument) {
 
+  if (matchingDocument) {
     const headerElement = document.createElement("div");
     headerElement.classList.add("wc_header");
     headerElement.style.height = "100px";
@@ -4481,69 +4495,81 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
     progressBarElement.style.display = showProgressBarStory ? "block" : "none";
     wordCountElement.style.display = matchingDocument.goal ? "block" : "none";
     buttonElement.style.display =
-      matchingDocument.goal !== "" && matchingDocument.goal != 0 ? "none" : "block";
-  
-      // Edit Icon
-      const actionEditIcon = document.createElement("img");
-      actionEditIcon.src = chrome.runtime.getURL("assets/edit.svg");
-      actionEditIcon.alt = "Edit Goal";
-      actionEditIcon.style.width = "15px";
-      actionEditIcon.style.height = "15px";
+      matchingDocument.goal !== "" && matchingDocument.goal != 0
+        ? "none"
+        : "block";
 
-      // Only show the edit button if a goal is set
-      const editButton = document.createElement("button");
-      editButton.appendChild(actionEditIcon);
-      editButton.style.fontSize = "12px";
-      editButton.style.marginLeft = "8px";
-      editButton.style.padding = "4px";
-      editButton.style.color = "white";
-      editButton.style.border = "none";
-      editButton.style.borderRadius = "20%"; // Make the button round
-      editButton.style.cursor = "pointer";
+    // Edit Icon
+    const actionEditIcon = document.createElement("img");
+    actionEditIcon.src = chrome.runtime.getURL("assets/edit.svg");
+    actionEditIcon.alt = "Edit Goal";
+    actionEditIcon.style.width = "15px";
+    actionEditIcon.style.height = "15px";
 
-      // Center-align word count and edit button
-      wordCountContainer.style.display = "flex";
-      wordCountContainer.style.alignItems = "center";
-      wordCountContainer.style.justifyContent = "center";
-      wordCountContainer.appendChild(editButton);
+    // Only show the edit button if a goal is set
+    const editButton = document.createElement("button");
+    editButton.appendChild(actionEditIcon);
+    editButton.style.fontSize = "12px";
+    editButton.style.marginLeft = "8px";
+    editButton.style.padding = "4px";
+    editButton.style.color = "white";
+    editButton.style.border = "none";
+    editButton.style.borderRadius = "20%"; // Make the button round
+    editButton.style.cursor = "pointer";
 
-      editButton.addEventListener("click", () => {
-        // Hide the edit button when editing
-        editButton.style.display = "none";
+    // Center-align word count and edit button
+    wordCountContainer.style.display = "flex";
+    wordCountContainer.style.alignItems = "center";
+    wordCountContainer.style.justifyContent = "center";
+    wordCountContainer.appendChild(editButton);
 
-        // Create input field to set new goal
-        const inputElement = document.createElement("input");
-        inputElement.type = "number";
-        inputElement.min = "0";
-        inputElement.placeholder = "Enter goal";
-        inputElement.value = matchingDocument.goal || ""; // Show current goal if set
-        inputElement.style.fontSize = "14px";
-        inputElement.style.padding = "10px";
-        inputElement.style.borderRadius = "20px";
-        inputElement.style.border = "1px solid #61a5c2";
-        inputElement.style.textAlign = "center";
+    editButton.addEventListener("click", () => {
+      // Hide the edit button when editing
+      editButton.style.display = "none";
 
-        // inputElement.style = "font-size: 14px; padding: 5px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 5px;";
+      // Create input field to set new goal
+      const inputElement = document.createElement("input");
+      inputElement.type = "number";
+      inputElement.min = "0";
+      inputElement.placeholder = "Enter goal";
+      inputElement.value = matchingDocument.goal || ""; // Show current goal if set
+      inputElement.style.fontSize = "14px";
+      inputElement.style.padding = "10px";
+      inputElement.style.borderRadius = "20px";
+      inputElement.style.border = "1px solid #61a5c2";
+      inputElement.style.textAlign = "center";
 
-        // Replace word count display with the input field
-        wordCountContainer.replaceChild(inputElement, wordCountElement);
+      // inputElement.style = "font-size: 14px; padding: 5px; border-radius: 5px; border: 1px solid #61a5c2; text-align: center; margin-top: 5px;";
 
-        inputElement.addEventListener("keypress", (event) => {
-          if (event.key === "Enter") {
-            saveGoal(inputElement);
-          }
-        });
+      // Replace word count display with the input field
+      wordCountContainer.replaceChild(inputElement, wordCountElement);
 
-        inputElement.addEventListener("blur", () => saveGoal(inputElement));
+      inputElement.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          saveGoal(inputElement);
+        }
       });
-      if (matchingDocument.goal == "" || matchingDocument.goal <= 0 || matchingDocument.goal == null) {
-        editButton.style.display = "none";
-      }
+
+      inputElement.addEventListener("blur", () => saveGoal(inputElement));
+    });
+    if (
+      matchingDocument.goal == "" ||
+      matchingDocument.goal <= 0 ||
+      matchingDocument.goal == null
+    ) {
+      editButton.style.display = "none";
+    }
 
     const saveGoal = async (inputElement) => {
       const newGoal = parseInt(inputElement.value);
-      console.log("newGoal" , newGoal)
-      if (newGoal === 0 || isNaN(newGoal) || newGoal == "" || newGoal == null || newGoal <= 0) {
+      console.log("newGoal", newGoal);
+      if (
+        newGoal === 0 ||
+        isNaN(newGoal) ||
+        newGoal == "" ||
+        newGoal == null ||
+        newGoal <= 0
+      ) {
         // Reset to "Set Goal" if the value is 0 or invalid
         matchingDocument.goal = 0;
         wordCountElement.style.display = "none";
@@ -4551,22 +4577,20 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
         // progressBarElement.style.width = "0%"; // Reset progress bar
         progressContainer.removeChild(wordCountContainer); // Remove word count and edit button if present
         await updateGoalInStorage(0); // Update storage
-        
       } else {
         matchingDocument.goal = newGoal;
 
         await updateGoalInStorage(newGoal);
-        
+
         // Update progress bar and display new goal in word count
         wordCountElement.textContent = `${matchingDocument.wordCount.toLocaleString()} / ${newGoal.toLocaleString()} words`;
         progressBarElement.style.width = `80%`;
-        
+
         // Replace input field with updated word count and show Edit button
         wordCountContainer.replaceChild(wordCountElement, inputElement);
         editButton.style.display = "inline"; // Show the edit button again
         wordCountElement.style.display = "block"; // Show word count
       }
-      
     };
     const updateGoalInStorage = async (newGoal) => {
       const updatedDocuments = result.documents.map((doc) =>
@@ -4581,9 +4605,6 @@ async function makeStoryHeader(currentSiteTitle, panelElement) {
 
   return matchingDocument;
 }
-
-
-
 
 async function isTrialExpire() {
   const userData = await chrome.storage.local.get(["user"]);
@@ -4615,17 +4636,12 @@ async function isTrialExpire() {
 
 // Function to add outline data to the panel
 async function makeStoryPage(outline, panelElement, currentSiteTitle) {
-  //todo haseeb here for outlines
- 
-
-  console.log("Outlines check---------------",outline)
   async function buildStructure() {
     const outlineContainer = panelElement;
     outlineContainer.style.marginBottom = "40px";
 
     displayOutline = checkStoryUser();
 
-    console.log("displayOutline: ", displayOutline);
     addOutlineSeparator(panelElement);
 
     const isTrialPlanExpired = await isTrialExpire();
@@ -4634,82 +4650,98 @@ async function makeStoryPage(outline, panelElement, currentSiteTitle) {
       addRemoveButton(panelElement, currentSiteTitle);
       return;
     }
+    let selectedTitle = await chrome.storage.local.get(["docTitleSelected"]);
+        selectedTitle = selectedTitle.docTitleSelected;
 
-    if (displayOutline) {
-      outline.forEach((item) => {
-        const element = document.createElement("div");
-        element.style.margin = "14px 0"; // Adjusted top margin for closer spacing
-        element.style.fontSize = "13px";
-        element.style.textAlign = "left"; // Align the outline text to the left
-        element.style.fontStyle = "italic"; // Italics for the outline text
+    if (selectedTitle.trim() === currentSiteTitle.trim()) {
+      if (displayOutline) {
+        if (outline.length > 0) {
+          outline.forEach((item) => {
+            const element = document.createElement("div");
+            element.style.margin = "14px 0"; // Adjusted top margin for closer spacing
+            element.style.fontSize = "13px";
+            element.style.textAlign = "left"; // Align the outline text to the left
+            element.style.fontStyle = "italic"; // Italics for the outline text
 
-        let displayText = "";
-        let clippedAmount = 0;
-        switch (item.level) {
-          case 0:
-            element.style.marginLeft = "0px";
-            clippedAmount = 37;
-            break;
-          case 1:
-            element.style.marginLeft = "15px";
-            clippedAmount = 35;
-            break;
-          case 2:
-            element.style.marginLeft = "30px";
-            clippedAmount = 33;
-            break;
-          case 3:
-            element.style.marginLeft = "45px";
-            clippedAmount = 31;
-            break;
-          case 4:
-            element.style.marginLeft = "60px";
-            clippedAmount = 29;
-            break;
-          case 5:
-            element.style.marginLeft = "75px";
-            clippedAmount = 27;
-            break;
-          case 6:
-            element.style.marginLeft = "90px";
-            clippedAmount = 25;
-            break;
-          default:
-            return; // Skip 'P' and other undefined levels
+            let displayText = "";
+            let clippedAmount = 0;
+            switch (item.level) {
+              case 0:
+                element.style.marginLeft = "0px";
+                clippedAmount = 37;
+                break;
+              case 1:
+                element.style.marginLeft = "15px";
+                clippedAmount = 35;
+                break;
+              case 2:
+                element.style.marginLeft = "30px";
+                clippedAmount = 33;
+                break;
+              case 3:
+                element.style.marginLeft = "45px";
+                clippedAmount = 31;
+                break;
+              case 4:
+                element.style.marginLeft = "60px";
+                clippedAmount = 29;
+                break;
+              case 5:
+                element.style.marginLeft = "75px";
+                clippedAmount = 27;
+                break;
+              case 6:
+                element.style.marginLeft = "90px";
+                clippedAmount = 25;
+                break;
+              default:
+                return; // Skip 'P' and other undefined levels
+            }
+
+            const clipTitle = (str, maxLen) =>
+              str.length <= maxLen
+                ? str
+                : str.slice(0, str.slice(0, maxLen).lastIndexOf(" ")) + "...";
+            const clippedText = clipTitle(item.text, clippedAmount);
+            displayText = `${clippedText} <span style="margin-left: 10px">${item.words} words</span>`; // Add space between text and numbers
+
+            element.innerHTML = displayText;
+
+            const wordCountIndex = displayText.indexOf(`${item.words} words`);
+            if (wordCountIndex !== -1) {
+              const beforeWordCount = displayText.slice(0, wordCountIndex);
+              const wordCountText = displayText.slice(wordCountIndex);
+
+              element.innerHTML = `${beforeWordCount}<span style="color: #61a9c2;">${wordCountText}</span>`;
+            }
+            const updateCountChange = item.words;
+            // Append the element to the outline container
+            outlineContainer.appendChild(element);
+          });
+        } else {
+          const element = document.createElement("div");
+          element.style.margin = "60px 0";
+          element.style.display = "flex";
+          element.style.justifyContent = "center";
+          element.style.alignItems = "center";
+          element.style.fontSize = "13px";
+          element.style.textAlign = "center";
+          element.style.fontWeight = "bold";
+          element.style.color = "gray";
+          element.innerHTML = `No Headings Detected`;
+          outlineContainer.appendChild(element);
         }
-
-        const clipTitle = (str, maxLen) =>
-          str.length <= maxLen
-            ? str
-            : str.slice(0, str.slice(0, maxLen).lastIndexOf(" ")) + "...";
-        const clippedText = clipTitle(item.text, clippedAmount);
-        displayText = `${clippedText} <span style="margin-left: 10px">${item.words} words</span>`; // Add space between text and numbers
-
-        element.innerHTML = displayText;
-
-        const wordCountIndex = displayText.indexOf(`${item.words} words`);
-        if (wordCountIndex !== -1) {
-          const beforeWordCount = displayText.slice(0, wordCountIndex);
-          const wordCountText = displayText.slice(wordCountIndex);
-
-          element.innerHTML = `${beforeWordCount}<span style="color: #61a9c2;">${wordCountText}</span>`;
-      
-        }
-        const updateCountChange =item.words;
-        // Append the element to the outline container
-        outlineContainer.appendChild(element);
-        console.log("testing haseeb element",updateCountChange)
-      
-
-      });
-      addRefreshTime(panelElement, currentSiteTitle);
-      addRemoveButton(panelElement, currentSiteTitle);
-       
+        addRefreshTime(panelElement, currentSiteTitle);
+        addRemoveButton(panelElement, currentSiteTitle);
+      } else {
+        console.log("No Outline Data Found add title here");
+      }
+    } else {
+      addErrorOutlineLink(selectedTitle, panelElement);
     }
   }
 
   panelElement.innerHTML = "";
-  console.log("Current Site Title: ", currentSiteTitle);
 
   makeStoryHeader(currentSiteTitle, panelElement)
     .then((matchingDocument) => {
@@ -4725,7 +4757,11 @@ async function makeStoryPage(outline, panelElement, currentSiteTitle) {
     });
 }
 
-function addRefreshTime(panelElement, currentSiteTitle, updateCountChange= "deafult value") {
+function addRefreshTime(
+  panelElement,
+  currentSiteTitle,
+  updateCountChange = "deafult value"
+) {
   if (currentUser == null) {
     return;
   }
@@ -4773,16 +4809,15 @@ function addRefreshTime(panelElement, currentSiteTitle, updateCountChange= "deaf
     panelElement.appendChild(loadingMessage);
 
     // Send a message to refresh the page
-    chrome.runtime.sendMessage({ action: "refreshPage" });
+    // chrome.runtime.sendMessage({ action: "refreshPage" });
 
     // Run the initStoryPage function after a 4-second delay
-    setTimeout(() => {
-      panelElement.innerHTML = "";
-      console.log("This is #2");
-      initStoryPage(panelElement, currentSiteTitle);
-      // Remove the loading message once the function is called
-      panelElement.removeChild(loadingMessage);
-    }, 5000);
+    // setTimeout(() => {
+    panelElement.innerHTML = "";
+    initStoryPage(panelElement, currentSiteTitle);
+    // Remove the loading message once the function is called
+    panelElement.removeChild(loadingMessage);
+    // }, 5000);
   });
 
   // Add the refresh button to the container
@@ -5117,7 +5152,6 @@ async function addErrorOutlineLink(documentTitle, panelElement) {
 
         // Run the initStoryPage function after a 4-second delay
         setTimeout(() => {
-          console.log("This is #3");
           initStoryPage(panelElement, matchingDocument.title);
           // Remove the loading message once the function is called
           containerElement.removeChild(loadingMessage);
@@ -5176,14 +5210,17 @@ function updateOutlineData(uiData) {
   }, 5000);
   chrome.runtime.sendMessage({ action: "getOutline" }, function (response) {
     showOrHideGlobalLoader(false);
-    console.log("Received Response from chrome outline : ", response);
+
     if (response && response.outline) {
       if (isStoryPanelOpen) {
-        console.log("uiData.length === 2");
         globalPanelElement = storyPanel = uiData[0];
         globalSiteTitle = currentSiteTitle = uiData[1];
         if (checkStoryUser())
-          makeStoryPage(response.outline, storyPanel, currentSiteTitle);
+          makeStoryPage(
+            response.outline,
+            storyPanel,
+            currentSiteTitle
+          );
       } else {
         console.log("Story Page is not open");
       }
@@ -5202,7 +5239,6 @@ async function initStoryPage(panelElement, clickedDocumentTitle) {
     const tabInfo = await getActiveTabInfo();
     const currentSiteUrl = tabInfo.url;
     const currentSiteTitle = tabInfo.title.replace(" - Google Docs", "");
-    console.log("Current Site Title: ", currentSiteTitle);
 
     makeStoryHeader(clickedDocumentTitle, panelElement);
 
@@ -5212,13 +5248,12 @@ async function initStoryPage(panelElement, clickedDocumentTitle) {
       return;
     }
 
-    if (currentSiteTitle !== clickedDocumentTitle) {
+    if (currentSiteTitle.trim() !== clickedDocumentTitle.trim()) {
       if (checkStoryUser())
         checkTialExpirationAndAct(clickedDocumentTitle, panelElement);
       return;
     }
 
-    console.log("Site has correct URL");
     updateOutlineData([panelElement, currentSiteTitle]);
   } catch (error) {
     console.error("Error in popup script:", error);
