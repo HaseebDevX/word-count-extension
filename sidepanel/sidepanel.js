@@ -202,9 +202,9 @@ function applyFreeTrialStyles(freeTrialElement, mode) {
 
 let currentUser = null;
 
-setInterval(function () {
-  chrome.runtime.sendMessage({ action: "syncDocs" });
-}, 5000);
+// setInterval(function () {
+//   chrome.runtime.sendMessage({ action: "syncDocs" });
+// }, 5000);
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -2449,6 +2449,7 @@ $("#daily-goal-input").on("keydown", function (event) {
 });
 
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
+  // return;
   if (changes.documents) {
     chrome.storage.local
       .get(["wordCountSetting", "progressBarSetting"])
@@ -4774,7 +4775,7 @@ function addRefreshTime(
   const refreshButton = document.createElement("button");
   refreshButton.id = "refresh-button";
   refreshButton.innerHTML =
-    'Refresh <span style="font-size: 18px; margin-left: 5px;">&#8635;</span>';
+    'Refresh <span id="rotate-icon" style="font-size: 18px; margin-left: 5px;">&#8635;</span>';
   refreshButton.style.backgroundColor = "#E0E0E0"; // Adjust the color
   refreshButton.style.border = "none";
   refreshButton.style.borderRadius = "20px";
@@ -4812,12 +4813,14 @@ function addRefreshTime(
     // chrome.runtime.sendMessage({ action: "refreshPage" });
 
     // Run the initStoryPage function after a 4-second delay
-    // setTimeout(() => {
-    panelElement.innerHTML = "";
-    initStoryPage(panelElement, currentSiteTitle);
+    chrome.runtime.sendMessage({ action: "syncDocs" });
+    setTimeout(() => {
+    // panelElement.innerHTML = "";
+      
+    // initStoryPage(panelElement, currentSiteTitle);
     // Remove the loading message once the function is called
     panelElement.removeChild(loadingMessage);
-    // }, 5000);
+    }, 5000);
   });
 
   // Add the refresh button to the container
