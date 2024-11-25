@@ -4814,10 +4814,11 @@ function addRefreshTime(
 
     // Run the initStoryPage function after a 4-second delay
     chrome.runtime.sendMessage({ action: "syncDocs" });
+    initStoryPage(panelElement, currentSiteTitle);
     setTimeout(() => {
     // panelElement.innerHTML = "";
       
-    // initStoryPage(panelElement, currentSiteTitle);
+    
     // Remove the loading message once the function is called
     panelElement.removeChild(loadingMessage);
     }, 5000);
