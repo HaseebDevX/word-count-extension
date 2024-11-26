@@ -202,9 +202,9 @@ function applyFreeTrialStyles(freeTrialElement, mode) {
 
 let currentUser = null;
 
-// setInterval(function () {
-//   chrome.runtime.sendMessage({ action: "syncDocs" });
-// }, 5000);
+setInterval(function () {
+  chrome.runtime.sendMessage({ action: "syncDocs" });
+}, 15000);
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
