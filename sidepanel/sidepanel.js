@@ -204,7 +204,7 @@ let currentUser = null;
 
 setInterval(function () {
   chrome.runtime.sendMessage({ action: "syncDocs" });
-}, 15000);
+}, 5000);
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1454,9 +1454,7 @@ function addShadowEventListeners() {
     if (event.target.id === "wc_addDoc") {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         let url = tabs[0].url;
-        console.log(url);
         if (url.indexOf("docs.google.com/document/") == -1) {
-          console.log("hh");
           return false;
         } else {
           shadowRoot.querySelector("#wc_linkDoc").style.display = "block";
@@ -4810,17 +4808,18 @@ function addRefreshTime(
     panelElement.appendChild(loadingMessage);
 
     // Send a message to refresh the page
-    // chrome.runtime.sendMessage({ action: "refreshPage" });
+    chrome.runtime.sendMessage({ action: "refreshPage" });
 
     // Run the initStoryPage function after a 4-second delay
-    chrome.runtime.sendMessage({ action: "syncDocs" });
-    initStoryPage(panelElement, currentSiteTitle);
+    // initStoryPage(panelElement, currentSiteTitle);
     setTimeout(() => {
-    // panelElement.innerHTML = "";
-      
-    
-    // Remove the loading message once the function is called
-    panelElement.removeChild(loadingMessage);
+      panelElement.innerHTML = "";
+      console.log("This is #2");
+      initStoryPage(panelElement, currentSiteTitle);
+      // // chrome.runtime.sendMessage({ action: "syncDocs" });
+      // initStoryPage(panelElement, currentSiteTitle);
+      // // Remove the loading message once the function is called
+      panelElement.removeChild(loadingMessage);
     }, 5000);
   });
 
@@ -4950,6 +4949,7 @@ function addRemoveButton(panelElement, documentTitle) {
     removeStoryAndDataOption.style.backgroundColor = "white";
   });
   removeStoryAndDataOption.addEventListener("click", () => {
+    removeDocument(documentTitle);
     console.log("Removing story and word count data: ", documentTitle);
     chrome.storage.local.get(["documents"]).then((result) => {
       const matchingDocumentId = result.documents.find(
@@ -4957,7 +4957,7 @@ function addRemoveButton(panelElement, documentTitle) {
       ).id;
       console.log("matchingDocumentId: ", matchingDocumentId);
       removeDocFromDailyStats(matchingDocumentId);
-      removeDocument(documentTitle);
+      
     });
     dropdownMenu.style.display = "none"; // Close the dropdown
   });
