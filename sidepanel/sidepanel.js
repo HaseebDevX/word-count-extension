@@ -202,9 +202,9 @@ function applyFreeTrialStyles(freeTrialElement, mode) {
 
 let currentUser = null;
 
-setInterval(function () {
-  chrome.runtime.sendMessage({ action: "syncDocs" });
-}, 5000);
+// setInterval(function () {
+//   chrome.runtime.sendMessage({ action: "syncDocs" });
+// }, 5000);
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -2200,7 +2200,7 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
           // Stop the event from bubbling up to prevent multiple calls
           event.stopPropagation();
           storyDetailsPageOpened = true;
-
+          
           //console.log(event.target.classList);
           if (
             event.target.classList.contains("wc_docWrap") ||
@@ -2212,7 +2212,8 @@ function renderListing(docs, showWordCountOnly, showProgressBar) {
             event.target.classList.contains("wc_addGoalNumber") ||
             event.target.classList.contains("wc_addGoalText") ||
             event.target.classList.contains("wc_docTitleDisplayed") ||
-            event.target.classList.contains("wc_wordsAndGoal")
+            event.target.classList.contains("wc_wordsAndGoal") ||
+            event.target.classList.contains("wc_addGoalLink") 
           ) {
             // Get the title of the clicked document
             let docTitle = event.target
