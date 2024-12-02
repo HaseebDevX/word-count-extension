@@ -4817,7 +4817,7 @@ function addRefreshTime(
       panelElement.innerHTML = "";
       console.log("This is #2");
       initStoryPage(panelElement, currentSiteTitle);
-      // // chrome.runtime.sendMessage({ action: "syncDocs" });
+      chrome.runtime.sendMessage({ action: "syncDocs" });
       // initStoryPage(panelElement, currentSiteTitle);
       // // Remove the loading message once the function is called
       panelElement.removeChild(loadingMessage);
